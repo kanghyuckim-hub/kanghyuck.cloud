@@ -1,0 +1,136 @@
+﻿euc first: <!doctype html>
+<html lang="ko" data-useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="referrer" contents="always">
+		<meta http-equiv="refresh" content="600">
+		<meta name="viewport" content=
+cp949 first: <!doctype html>
+<html lang="ko" data-useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="referrer" contents="always">
+		<meta http-equiv="refresh" content="600">
+		<meta name="viewport" content=
+EUC first element html:
+ 
+			<div class="sa_item_inner">
+				<div class="sa_item_flex _LAZY_LOADING_WRAP">
+					<div class="sa_thumb _LAZY_LOADING_ERROR_HIDE">
+						<div class="sa_thumb_inner">
+							<a href="https://n.news.naver.com/mnews/article/055/0001360318" class="sa_thumb_link _NLOG_IMPRESSION" tabindex="-1" aria-hidden="true" data-clk="pol.clart" data-imp-gdid="8800011C_000000000000000001360318" data-imp-url="https://n.news.naver.com/mnews/article/055/0001360318" data-imp-index="1">
+								<img data-src="https://mimgnews.pstatic.net/image/origin/055/2026/05/30/1360318.jpg?type=nf220_150" class="_LAZY_LOADING _LAZY_LOADING_INIT_HIDE" width="110" height="75" alt="" style="display: none;">
+							</a>
+						</div>
+					</div>
+					<div class="sa_text">
+						<a href="https://n.news.naver.com/mnews/article/055/0001360318" class="sa_text_title _NLOG_IMPRESSION" data-clk="pol.clart" data-imp-gdid="8800011C_000000000000000001360318" data-imp-url="https://n.news.naver.com/mnews/article/055/0001360318" data-imp-index="1">
+							<strong class="sa_text_strong">占쎌궎占쎈뮎 占쎄텢占쎌읈占쎈떮占쎈ご 占쎌뵠占쏙옙占쏙쭪硫ㅿ옙占쏙옙?얏뤃占?3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎄퐣 占쎌궎占쎌뜎 6占쎈뻻繹먮슣占쏙옙</strong>
+						</a>
+						<div class="sa_text_lede">6夷? 筌욑옙獄쎻뫗苑묈쳞占?獄쏉옙 ?댐옙占쎌돳占쎌벥占쎌뜚 占쎌삺夷뚩퉪?욱뀠 占쎄퐨椰꾬옙 占쎌뵠占쏙옙占쏙쭪占?占쎄텢占쎌읈占쎈떮占쎈ご揶쏉옙 占쎌궎占쎈뮎(30占쎌뵬) 筌욊쑵六억옙留쀯옙?뀐옙?? 占쎌읈?댐옙 3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎈퓠占쎄퐣 占쎌뵠筌뚭쑴占쏙옙占쎈뮉 占쎄텢占쎌읈占쎈떮占쎈ご占쎈뮉 癰귨옙 占쎈떮占쎈ご占쏙옙占?占쎈뼎?깍옙 雅뚯눖占쎌눖踰묉에?뱄옙占쏙옙占쏙옙 ?울옙?④쑴毓억옙??筌욑옙占쎌젟占쎈쭆 占쎈떮占쎈ご占쎈꺖揶쏉옙 占쎈툡占쎈빒 占쎌읈?댐옙 占쎈선占쎈뮄 ?⑤끃肉됵옙苑뚳옙援?/div>
+						<div class="sa_text_info">
+							<div class="sa_text_info_left">
+								<div class="sa_text_press">SBS</div>
+								<a href="https://n.news.naver.com/mnews/article/comment/055/0001360318" class="sa_text_cmt _COMMENT_COUNT_LIST" style="display: none;" data-ticket="news" data-object-id="news055,0001360318" data-zero-allow="false"></a>
+							</div>
+							<div class="sa_text_info_right">
+								<a href="/cluster/c_202605300520_00000005/section/100?oid=055&amp;aid=0001360318" class="sa_text_cluster" data-clk="clcou">
+									<span class="sa_text_cluster_num">5</span>
+									<span class="blind">揶쏆뮇???울옙占쎌졃占쎈뤀占쎈뮞 占쎈쐭癰귣떯由?/span>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+EUC first element text:
+ 占쎌궎占쎈뮎 占쎄텢占쎌읈占쎈떮占쎈ご 占쎌뵠占쏙옙占쏙쭪硫ㅿ옙占쏙옙?얏뤃占?3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎄퐣 占쎌궎占쎌뜎 6占쎈뻻繹먮슣占쏙옙
+						
+						6夷? 筌욑옙獄쎻뫗苑묈쳞占?獄쏉옙 ?댐옙占쎌돳占쎌벥占쎌뜚 占쎌삺夷뚩퉪?욱뀠 占쎄퐨椰꾬옙 占쎌뵠占쏙옙占쏙쭪占?占쎄텢占쎌읈占쎈떮占쎈ご揶쏉옙 占쎌궎占쎈뮎(30占쎌뵬) 筌욊쑵六억옙留쀯옙?뀐옙?? 占쎌읈?댐옙 3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎈퓠占쎄퐣 占쎌뵠筌뚭쑴占쏙옙占쎈뮉 占쎄텢占쎌읈占쎈떮占쎈ご占쎈뮉 癰귨옙 占쎈떮占쎈ご占쏙옙占?占쎈뼎?깍옙 雅뚯눖占쎌눖踰묉에?뱄옙占쏙옙占쏙옙 ?울옙?④쑴毓억옙??筌욑옙占쎌젟占쎈쭆 占쎈떮占쎈ご占쎈꺖揶쏉옙 占쎈툡占쎈빒 占쎌읈?댐옙 占쎈선占쎈뮄 ?⑤끃肉됵옙苑뚳옙援?						
+							
+								SBS
+								
+							
+							
+								
+									5
+									揶쏆뮇???울옙占쎌졃占쎈뤀占쎈뮞 占쎈쐭癰귣떯由?EUC first element text codes:
+ [
+  'fffd', 'c0a4', 'fffd',
+  'b49b', '20',   'fffd',
+  'ad97', 'fffd', 'c7fe',
+  'fffd', 'b2fe', 'fffd',
+  'bab4', '20',   'fffd',
+  'c520', 'fffd', 'fffd',
+  'fffd', 'f9de'
+]
+CP949 first element html:
+ 
+			<div class="sa_item_inner">
+				<div class="sa_item_flex _LAZY_LOADING_WRAP">
+					<div class="sa_thumb _LAZY_LOADING_ERROR_HIDE">
+						<div class="sa_thumb_inner">
+							<a href="https://n.news.naver.com/mnews/article/055/0001360318" class="sa_thumb_link _NLOG_IMPRESSION" tabindex="-1" aria-hidden="true" data-clk="pol.clart" data-imp-gdid="8800011C_000000000000000001360318" data-imp-url="https://n.news.naver.com/mnews/article/055/0001360318" data-imp-index="1">
+								<img data-src="https://mimgnews.pstatic.net/image/origin/055/2026/05/30/1360318.jpg?type=nf220_150" class="_LAZY_LOADING _LAZY_LOADING_INIT_HIDE" width="110" height="75" alt="" style="display: none;">
+							</a>
+						</div>
+					</div>
+					<div class="sa_text">
+						<a href="https://n.news.naver.com/mnews/article/055/0001360318" class="sa_text_title _NLOG_IMPRESSION" data-clk="pol.clart" data-imp-gdid="8800011C_000000000000000001360318" data-imp-url="https://n.news.naver.com/mnews/article/055/0001360318" data-imp-index="1">
+							<strong class="sa_text_strong">占쎌궎占쎈뮎 占쎄텢占쎌읈占쎈떮占쎈ご 占쎌뵠占쏙옙占쏙쭪硫ㅿ옙占쏙옙?얏뤃占?3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎄퐣 占쎌궎占쎌뜎 6占쎈뻻繹먮슣占쏙옙</strong>
+						</a>
+						<div class="sa_text_lede">6夷? 筌욑옙獄쎻뫗苑묈쳞占?獄쏉옙 ?댐옙占쎌돳占쎌벥占쎌뜚 占쎌삺夷뚩퉪?욱뀠 占쎄퐨椰꾬옙 占쎌뵠占쏙옙占쏙쭪占?占쎄텢占쎌읈占쎈떮占쎈ご揶쏉옙 占쎌궎占쎈뮎(30占쎌뵬) 筌욊쑵六억옙留쀯옙?뀐옙?? 占쎌읈?댐옙 3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎈퓠占쎄퐣 占쎌뵠筌뚭쑴占쏙옙占쎈뮉 占쎄텢占쎌읈占쎈떮占쎈ご占쎈뮉 癰귨옙 占쎈떮占쎈ご占쏙옙占?占쎈뼎?깍옙 雅뚯눖占쎌눖踰묉에?뱄옙占쏙옙占쏙옙 ?울옙?④쑴毓억옙??筌욑옙占쎌젟占쎈쭆 占쎈떮占쎈ご占쎈꺖揶쏉옙 占쎈툡占쎈빒 占쎌읈?댐옙 占쎈선占쎈뮄 ?⑤끃肉됵옙苑뚳옙援?/div>
+						<div class="sa_text_info">
+							<div class="sa_text_info_left">
+								<div class="sa_text_press">SBS</div>
+								<a href="https://n.news.naver.com/mnews/article/comment/055/0001360318" class="sa_text_cmt _COMMENT_COUNT_LIST" style="display: none;" data-ticket="news" data-object-id="news055,0001360318" data-zero-allow="false"></a>
+							</div>
+							<div class="sa_text_info_right">
+								<a href="/cluster/c_202605300520_00000005/section/100?oid=055&amp;aid=0001360318" class="sa_text_cluster" data-clk="clcou">
+									<span class="sa_text_cluster_num">5</span>
+									<span class="blind">揶쏆뮇???울옙占쎌졃占쎈뤀占쎈뮞 占쎈쐭癰귣떯由?/span>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+CP949 first element text:
+ 占쎌궎占쎈뮎 占쎄텢占쎌읈占쎈떮占쎈ご 占쎌뵠占쏙옙占쏙쭪硫ㅿ옙占쏙옙?얏뤃占?3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎄퐣 占쎌궎占쎌뜎 6占쎈뻻繹먮슣占쏙옙
+						
+						6夷? 筌욑옙獄쎻뫗苑묈쳞占?獄쏉옙 ?댐옙占쎌돳占쎌벥占쎌뜚 占쎌삺夷뚩퉪?욱뀠 占쎄퐨椰꾬옙 占쎌뵠占쏙옙占쏙쭪占?占쎄텢占쎌읈占쎈떮占쎈ご揶쏉옙 占쎌궎占쎈뮎(30占쎌뵬) 筌욊쑵六억옙留쀯옙?뀐옙?? 占쎌읈?댐옙 3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎈퓠占쎄퐣 占쎌뵠筌뚭쑴占쏙옙占쎈뮉 占쎄텢占쎌읈占쎈떮占쎈ご占쎈뮉 癰귨옙 占쎈떮占쎈ご占쏙옙占?占쎈뼎?깍옙 雅뚯눖占쎌눖踰묉에?뱄옙占쏙옙占쏙옙 ?울옙?④쑴毓억옙??筌욑옙占쎌젟占쎈쭆 占쎈떮占쎈ご占쎈꺖揶쏉옙 占쎈툡占쎈빒 占쎌읈?댐옙 占쎈선占쎈뮄 ?⑤끃肉됵옙苑뚳옙援?						
+							
+								SBS
+								
+							
+							
+								
+									5
+									揶쏆뮇???울옙占쎌졃占쎈뤀占쎈뮞 占쎈쐭癰귣떯由?CP949 first element text codes:
+ [
+  'fffd', 'c0a4', 'fffd',
+  'b49b', '20',   'fffd',
+  'ad97', 'fffd', 'c7fe',
+  'fffd', 'b2fe', 'fffd',
+  'bab4', '20',   'fffd',
+  'c520', 'fffd', 'fffd',
+  'fffd', 'f9de'
+]
+euc parsed titles: [
+  '占쎌궎占쎈뮎 占쎄텢占쎌읈占쎈떮占쎈ご 占쎌뵠占쏙옙占쏙쭪硫ㅿ옙占쏙옙?얏뤃占?3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎄퐣 占쎌궎占쎌뜎 6占쎈뻻繹먮슣占쏙옙',
+  '占쎌뒭占쎄맒占쎌깈 vs 繹먲옙筌욊쑵源?..占쎌뵠 占쎈뻻揶쏉옙 揶쏅벡??,
+  '[占쎈꺗癰귨옙] 占쎌벍占쏙옙占쏙옙?삼옙議? 占쎈떮占쎈ご占쎌뒠筌욑옙 占쎈굶?⑨옙 占쎄돌占쏙옙占?占쏙옙?뺤뺘筌랃옙 筌〓엨占쏙옙占쎈즲 ?우뮇媛뽳옙援뱄옙占쎌빁占쏙옙畑뱄옙 占쏙옙?쀪퉪占쎈퉹 占쎄텢占쎌?占쏙옙占?,
+  '繹먲옙占쎌뒠占쎄텚 "占쎄퐬椰꾧퀬?싮뇡占?占쎈씨占쎌뵠 占쎈뱟?븝옙"占쏙옙占쏙옙沅쀯옙?억옙?억옙紐?筌ｃ꺂沅?占쎈립 占쎈ご 占쎈뻬占쎄텢',
+  '占쎌뵠筌뤿굝而?占쎌읈 占쏙옙占쏙옙?삼옙議? 31占쎌뵬 ?븝옙占쎄텦 獄쎻뫖揆占쏙옙占?獄쏅벤?롣빳占?筌욑옙筌욑옙"'
+]
+cp949 parsed titles: [
+  '占쎌궎占쎈뮎 占쎄텢占쎌읈占쎈떮占쎈ご 占쎌뵠占쏙옙占쏙쭪硫ㅿ옙占쏙옙?얏뤃占?3筌ｏ옙571揶쏉옙 占쎈떮占쎈ご占쎈꺖占쎄퐣 占쎌궎占쎌뜎 6占쎈뻻繹먮슣占쏙옙',
+  '占쎌뒭占쎄맒占쎌깈 vs 繹먲옙筌욊쑵源?..占쎌뵠 占쎈뻻揶쏉옙 揶쏅벡??,
+  '[占쎈꺗癰귨옙] 占쎌벍占쏙옙占쏙옙?삼옙議? 占쎈떮占쎈ご占쎌뒠筌욑옙 占쎈굶?⑨옙 占쎄돌占쏙옙占?占쏙옙?뺤뺘筌랃옙 筌〓엨占쏙옙占쎈즲 ?우뮇媛뽳옙援뱄옙占쎌빁占쏙옙畑뱄옙 占쏙옙?쀪퉪占쎈퉹 占쎄텢占쎌?占쏙옙占?,
+  '繹먲옙占쎌뒠占쎄텚 "占쎄퐬椰꾧퀬?싮뇡占?占쎈씨占쎌뵠 占쎈뱟?븝옙"占쏙옙占쏙옙沅쀯옙?억옙?억옙紐?筌ｃ꺂沅?占쎈립 占쎈ご 占쎈뻬占쎄텢',
+  '占쎌뵠筌뤿굝而?占쎌읈 占쏙옙占쏙옙?삼옙議? 31占쎌뵬 ?븝옙占쎄텦 獄쎻뫖揆占쏙옙占?獄쏅벤?롣빳占?筌욑옙筌욑옙"'
+]

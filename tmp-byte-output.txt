@@ -1,0 +1,28 @@
+﻿hex: 3c7374726f6e6720636c6173733d2273615f746578745f7374726f6e67223eec9db420eb8c80ed86b5eba0b92026237832373beab8b0ed919c20ebacb8ec9d9826237832373b20eb8693eab3a020ec97acec95bc20eab2a9eb8f8ce280a62671756f743bec84a0eab1b0ebb29520ec9c84ebb0982671756f743b7673202671756f743bec96b5eca78020eab3b5ec84b82671756f743b3c2f7374726f6e673e0a0909090909093c2f613e0a0909090909093c64697620636c6173733d2273615f746578745f6c6564
+utf8 codes: [
+  '3c', '73', '74', '72',
+  '6f', '6e', '67', '20',
+  '63', '6c', '61', '73',
+  '73', '3d', '22', '73',
+  '61', '5f', '74', '65'
+]
+euc codes: [
+  '3c', '73', '74', '72',
+  '6f', '6e', '67', '20',
+  '63', '6c', '61', '73',
+  '73', '3d', '22', '73',
+  '61', '5f', '74', '65'
+]
+cp949 codes: [
+  '3c', '73', '74', '72',
+  '6f', '6e', '67', '20',
+  '63', '6c', '61', '73',
+  '73', '3d', '22', '73',
+  '61', '5f', '74', '65'
+]
+utf8 hangul count: 23
+euc hangul count: 25
+cp949 hangul count: 25
+utf8 snippet json: "<strong class=\"sa_text_strong\">????듬졊 &#x"
+euc snippet json: "<strong class=\"sa_text_strong\">占쎌뵠 占쏙옙占쏙옙?삼옙"
+cp949 snippet json: "<strong class=\"sa_text_strong\">占쎌뵠 占쏙옙占쏙옙?삼옙"

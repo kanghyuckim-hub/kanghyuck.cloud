@@ -1,0 +1,27 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"success":true,"count":20,"section":"main","keyword":null,
+                    "news":[{"id":"news-0-1780104448405","title":"ì¬ì í¬í 
+                    ë§ì§ë§ ë â¦í¬íì¨ ì­ë ìµê³ ì¹ '20.62%' ê²½ì  
+                    ì£¼ëª©","description":"...
+RawContent        : HTTP/1.1 200 OK
+                    vary: rsc, next-router-state-tree, next-router-prefetch, ne
+                    xt-router-segment-prefetch
+                    Connection: keep-alive
+                    Keep-Alive: timeout=5
+                    Transfer-Encoding: chunked
+                    Content-Type: applica...
+Forms             : {}
+Headers           : {[vary, rsc, next-router-state-tree, next-router-prefetch, 
+                    next-router-segment-prefetch], [Connection, keep-alive], [K
+                    eep-Alive, timeout=5], [Transfer-Encoding, chunked]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : System.__ComObject
+RawContentLength  : 12942
+
+
+

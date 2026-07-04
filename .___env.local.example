@@ -1,0 +1,34 @@
+# Resend (메일 발송)
+RESEND_API_KEY=
+CONTACT_TO_EMAIL=
+CONTACT_FROM_EMAIL=
+
+# Google OAuth2 (Gmail API용 - 기존 로그인용 GOOGLE_CLIENT_ID/SECRET과 같은 값을 써도 무방하나,
+# scope가 다르므로 별도 OAuth Client를 권장)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REFRESH_TOKEN=
+
+# Gmail watch() 대상 Pub/Sub 토픽
+# 형식: projects/{project-id}/topics/{topic-name}
+GOOGLE_PUBSUB_TOPIC=
+
+# Pub/Sub push 구독에 연결한 서비스 계정 이메일 (OIDC 토큰 발급 주체 검증용)
+PUBSUB_PUSH_SERVICE_ACCOUNT=
+
+# (선택) Pub/Sub push 구독의 audience를 명시적으로 다르게 설정한 경우에만 지정
+# 기본값은 요청이 들어온 origin + /api/gmail-webhook
+PUBSUB_PUSH_AUDIENCE=
+
+# /api/gmail-renew-watch 를 외부(Vercel Cron)에서만 호출하도록 보호하는 시크릿
+CRON_SECRET=
+
+# 공공데이터포털(data.go.kr) - 조달청_나라장터 입찰공고정보서비스
+# https://www.data.go.kr/data/15129394/openapi.do 에서 활용신청 후 발급받은
+# 인증키(Encoding) 값을 그대로 입력하세요 (건축설계 입찰공고 페이지에서 사용).
+DATA_GO_KR_SERVICE_KEY=
+
+# 열린국회정보(open.assembly.go.kr) - 국회의원 발의법률안 Open API
+# https://open.assembly.go.kr 회원가입 후 마이페이지에서 발급받은 인증키를 입력하세요
+# (건축법 개정안 탭에서 사용).
+ASSEMBLY_API_KEY=

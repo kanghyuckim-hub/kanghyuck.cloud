@@ -1,0 +1,134 @@
+import { NextRequest, NextResponse } from "next/server";
+import { extractText } from "unpdf";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+export const maxDuration = 60;
+
+async function parseDataFile(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+
+  if (file.type === "application/pdf") {
+    const { text } = await extractText(new Uint8Array(buffer), { mergePages: true });
+    return Array.isArray(text) ? text.join("\n") : String(text);
+  }
+
+  // CSV, TXT, or plain text Excel fallback
+  const decoded = new TextDecoder("utf-8").decode(buffer);
+  return decoded;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const dataFile = formData.get("dataFile") as File | null;
+    const designFile = formData.get("designFile") as File | null;
+
+    if (!dataFile) {
+      return NextResponse.json({ error: "데이터 파일이 필요합니다." }, { status: 400 });
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json({ error: "GEMINI_API_KEY 환경변수가 설정되지 않았습니다." }, { status: 500 });
+    }
+
+    // 1. Parse data file content
+    const dataText = await parseDataFile(dataFile);
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const commonRules = `
+생성 규칙:
+1. <!DOCTYPE html>부터 시작하는 완전한 HTML 문서를 작성하세요.
+2. 모든 스타일은 인라인 스타일(style="...") 또는 <style> 태그를 사용하세요. 외부 CDN은 사용하지 마세요.
+3. 한국어로 작성하세요.
+4. 데이터를 표, KPI 카드, 바 차트(HTML/CSS로 구현), 전월 대비 증감률 등으로 시각적으로 표현하세요.
+5. 전문적이고 인쇄 가능한 보고서 형태로 만드세요. 너비는 A4 기준(800px 내외)으로 구성하세요.
+6. HTML 코드만 반환하세요. 마크다운 코드 블록(\`\`\`html)이나 부가 설명은 포함하지 마세요.`;
+
+    let result;
+
+    if (designFile) {
+      // ── 디자인 샘플 있음: 비전 모드 ──────────────────────────────
+      const supportedVisionTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif", "application/pdf"];
+      if (!supportedVisionTypes.includes(designFile.type)) {
+        return NextResponse.json({ error: "지원하지 않는 디자인 파일 형식입니다. PNG, JPG, PDF를 사용하세요." }, { status: 400 });
+      }
+
+      const designBuffer = await designFile.arrayBuffer();
+      const designBase64 = Buffer.from(designBuffer).toString("base64");
+
+      const promptWithDesign = `당신은 전문 보고서 디자이너입니다.
+
+첨부된 디자인 샘플의 레이아웃, 색상 팔레트, 폰트 스타일, 섹션 구성, 전반적인 분위기를 세밀하게 분석하세요.
+그리고 아래 실적 데이터를 담아 동일한 디자인 스타일의 월간실적보고서 HTML을 생성해주세요.
+
+━━━ 실적 데이터 ━━━
+${dataText}
+━━━━━━━━━━━━━━━━━
+${commonRules}
+4-1. 디자인 샘플의 색상, 레이아웃, 섹션 구조를 최대한 반영하세요.`;
+
+      result = await model.generateContent({
+        contents: [{
+          role: "user",
+          parts: [
+            { text: promptWithDesign },
+            {
+              inlineData: {
+                mimeType: designFile.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif" | "application/pdf",
+                data: designBase64,
+              },
+            },
+          ],
+        }],
+        generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
+      });
+    } else {
+      // ── 디자인 샘플 없음: AI 자체 디자인 ────────────────────────
+      const promptAutoDesign = `당신은 전문 보고서 디자이너입니다.
+
+아래 실적 데이터를 분석하여 세련되고 전문적인 월간실적보고서 HTML을 직접 디자인해서 생성해주세요.
+
+━━━ 실적 데이터 ━━━
+${dataText}
+━━━━━━━━━━━━━━━━━
+
+디자인 가이드 (자유롭게 해석하세요):
+- 색상: 네이비(#1e3a5f), 블루(#2563eb) 계열의 전문적인 팔레트를 권장합니다.
+- 레이아웃: 상단 헤더 → KPI 요약 카드 → 데이터 테이블 → 차트/그래프 → 분석 코멘트 순서를 권장합니다.
+- KPI 카드는 주요 지표(매출, 영업이익, 순이익 등)를 큰 숫자로 강조하고 전월 대비 증감을 색상(상승=초록, 하락=빨강)으로 표시하세요.
+- 바 차트는 순수 HTML/CSS(div 높이 비율)로 구현하세요.
+- 보고서 상단에 회사명/기간 등 헤더 정보를 포함하세요.
+${commonRules}`;
+
+      result = await model.generateContent({
+        contents: [{
+          role: "user",
+          parts: [{ text: promptAutoDesign }],
+        }],
+        generationConfig: { temperature: 0.5, maxOutputTokens: 8192 },
+      });
+    }
+
+    let html = result.response.text();
+
+    // Strip markdown code fences if present
+    html = html
+      .replace(/^```html\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+    // Ensure it starts with a valid HTML tag
+    if (!html.startsWith("<!DOCTYPE") && !html.startsWith("<html") && !html.startsWith("<HTML")) {
+      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${html}</body></html>`;
+    }
+
+    return NextResponse.json({ html });
+  } catch (error) {
+    console.error("월간보고서 생성 오류:", error);
+    const message = error instanceof Error ? error.message : "알 수 없는 오류";
+    return NextResponse.json({ error: `보고서 생성 중 오류가 발생했습니다: ${message}` }, { status: 500 });
+  }
+}
