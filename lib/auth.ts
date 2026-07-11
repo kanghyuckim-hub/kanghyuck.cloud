@@ -24,14 +24,24 @@ export async function getSessionMember(): Promise<SessionMember | null> {
   }
   if (!email) return null;
 
-  const pool = getDbPool();
-  const result = await pool.query<{ id: string; name: string | null; role: string }>(
-    `select u.id, u.name, coalesce(ur.role, 'user') as role
-     from users u
-     left join user_roles ur on ur.user_id = u.id
-     where u.email = $1`,
-    [email]
-  );
-  const row = result.rows[0];
-  return row ? { id: row.id, email, name: row.name, role: row.role } : null;
+  // MVP bypass account: no DB is required to trust this fixed login.
+  if (email === ALLOWED_LOGIN_EMAIL) {
+    return { id: ALLOWED_LOGIN_EMAIL, email, name: "테스트 계정", role: "master" };
+  }
+
+  try {
+    const pool = getDbPool();
+    const result = await pool.query<{ id: string; name: string | null; role: string }>(
+      `select u.id, u.name, coalesce(ur.role, 'user') as role
+       from users u
+       left join user_roles ur on ur.user_id = u.id
+       where u.email = $1`,
+      [email]
+    );
+    const row = result.rows[0];
+    return row ? { id: row.id, email, name: row.name, role: row.role } : null;
+  } catch (error) {
+    console.error("getSessionMember: DB lookup failed:", error);
+    return null;
+  }
 }
