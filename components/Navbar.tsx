@@ -28,6 +28,12 @@ export default function Navbar() {
             메일관리
           </a>
           <a
+            href="/business-analysis"
+            className="text-sm text-gray-600 transition-colors hover:text-gray-900"
+          >
+            재무분석
+          </a>
+          <a
             href="/auto-report"
             className="text-sm text-gray-600 transition-colors hover:text-gray-900"
           >
