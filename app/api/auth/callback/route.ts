@@ -39,30 +39,34 @@ export async function GET(request: Request) {
       throw new Error("Invalid Google ID token payload");
     }
 
-    const pool = getDbPool();
-    await pool.query(
-      `insert into users (google_sub, email, email_verified, name, given_name, family_name, picture, locale, last_login_at)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, now())
-       on conflict (google_sub) do update set
-         email = excluded.email,
-         email_verified = excluded.email_verified,
-         name = excluded.name,
-         given_name = excluded.given_name,
-         family_name = excluded.family_name,
-         picture = excluded.picture,
-         locale = excluded.locale,
-         last_login_at = now()`,
-      [
-        payload.sub,
-        payload.email,
-        payload.email_verified ?? false,
-        payload.name ?? null,
-        payload.given_name ?? null,
-        payload.family_name ?? null,
-        payload.picture ?? null,
-        payload.locale ?? null,
-      ]
-    );
+    try {
+      const pool = getDbPool();
+      await pool.query(
+        `insert into users (google_sub, email, email_verified, name, given_name, family_name, picture, locale, last_login_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, now())
+         on conflict (google_sub) do update set
+           email = excluded.email,
+           email_verified = excluded.email_verified,
+           name = excluded.name,
+           given_name = excluded.given_name,
+           family_name = excluded.family_name,
+           picture = excluded.picture,
+           locale = excluded.locale,
+           last_login_at = now()`,
+        [
+          payload.sub,
+          payload.email,
+          payload.email_verified ?? false,
+          payload.name ?? null,
+          payload.given_name ?? null,
+          payload.family_name ?? null,
+          payload.picture ?? null,
+          payload.locale ?? null,
+        ]
+      );
+    } catch (dbError) {
+      console.error("Google OAuth callback: failed to persist user (continuing login):", dbError);
+    }
 
     const cookieValue = Buffer.from(
       JSON.stringify({
