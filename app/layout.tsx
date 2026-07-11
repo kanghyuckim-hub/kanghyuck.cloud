@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: '하이미디어 재직자 AI 과정',
-  description: '하이미디어 재직자 AI 교육 과정 - AI 기술로 업무 효율을 높이세요',
+  title: '커스텀 AI 과정',
+  description: '커스텀 재직자 AI 교육 과정 - AI 기술로 업무 효율을 높이세요',
   generator: 'v0.app',
   icons: {
     icon: [

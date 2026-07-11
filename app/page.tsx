@@ -33,7 +33,7 @@ export default async function Home() {
         <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-xl">
           <div className="mb-8">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
-              로그인 필요
+               로그인  필요
             </p>
             <h1 className="mt-4 text-3xl font-semibold text-slate-900">
               Google 계정으로 시작하기
