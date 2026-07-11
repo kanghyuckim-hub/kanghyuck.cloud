@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Parse data file content (uploaded to Blob storage by the client)
-    const dataText = await fetchAndParseDataFile(dataFileUrl, dataFileType);
+    const dataText = await fetchAndParseDataFile(dataFileUrl);
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });

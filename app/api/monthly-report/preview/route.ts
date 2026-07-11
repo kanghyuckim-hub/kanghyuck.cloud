@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "데이터 파일이 필요합니다." }, { status: 400 });
     }
 
-    const text = await fetchAndParseDataFile(dataFileUrl, dataFileType);
+    const text = await fetchAndParseDataFile(dataFileUrl);
     const truncated = text.length > MAX_PREVIEW_CHARS;
 
     return NextResponse.json({

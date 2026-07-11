@@ -1,10 +1,15 @@
 import { extractText } from "unpdf";
 import * as XLSX from "xlsx";
 
-const EXCEL_CONTENT_TYPES = [
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-  "application/vnd.ms-excel", // .xls
-];
+function isPdf(bytes: Uint8Array): boolean {
+  // "%PDF"
+  return bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+}
+
+function isZipContainer(bytes: Uint8Array): boolean {
+  // "PK" — .xlsx/.xls (and other Office Open XML formats) are zip archives
+  return bytes[0] === 0x50 && bytes[1] === 0x4b;
+}
 
 function parseExcelBuffer(buffer: ArrayBuffer): string {
   const workbook = XLSX.read(buffer, { type: "buffer" });
@@ -15,24 +20,25 @@ function parseExcelBuffer(buffer: ArrayBuffer): string {
   }).join("\n\n");
 }
 
-export async function parseDataBuffer(buffer: ArrayBuffer, contentType: string): Promise<string> {
-  if (contentType === "application/pdf") {
-    const { text } = await extractText(new Uint8Array(buffer), { mergePages: true });
+export async function parseDataBuffer(buffer: ArrayBuffer): Promise<string> {
+  const bytes = new Uint8Array(buffer);
+
+  if (isPdf(bytes)) {
+    const { text } = await extractText(bytes, { mergePages: true });
     return Array.isArray(text) ? text.join("\n") : String(text);
   }
 
-  if (EXCEL_CONTENT_TYPES.includes(contentType)) {
+  if (isZipContainer(bytes)) {
     return parseExcelBuffer(buffer);
   }
 
   // CSV or TXT
-  const decoded = new TextDecoder("utf-8").decode(buffer);
-  return decoded;
+  return new TextDecoder("utf-8").decode(buffer);
 }
 
-export async function fetchAndParseDataFile(url: string, contentType: string): Promise<string> {
+export async function fetchAndParseDataFile(url: string): Promise<string> {
   const res = await fetch(url);
   if (!res.ok) throw new Error("업로드된 파일을 불러오지 못했습니다.");
   const buffer = await res.arrayBuffer();
-  return parseDataBuffer(buffer, contentType);
+  return parseDataBuffer(buffer);
 }
