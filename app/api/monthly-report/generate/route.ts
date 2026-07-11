@@ -4,6 +4,9 @@ import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 
 export const maxDuration = 60;
 
+// Gemini 2.5 Flash 무료 등급의 분당 입력 토큰 한도(250,000)를 넘지 않도록 안전하게 제한
+const MAX_DATA_TEXT_CHARS = 100000;
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -20,7 +23,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Parse data file content (uploaded to Blob storage by the client)
-    const dataText = await fetchAndParseDataFile(dataFileUrl);
+    let dataText = await fetchAndParseDataFile(dataFileUrl);
+    if (dataText.length > MAX_DATA_TEXT_CHARS) {
+      dataText = dataText.slice(0, MAX_DATA_TEXT_CHARS) + "\n\n(이하 데이터는 길이 제한으로 생략됨)";
+    }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -117,6 +123,12 @@ ${commonRules}`;
   } catch (error) {
     console.error("월간보고서 생성 오류:", error);
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
+    if (message.includes("429") || message.toLowerCase().includes("quota")) {
+      return NextResponse.json(
+        { error: "AI 사용량이 일시적으로 한도를 초과했습니다. 잠시 후 다시 시도해주세요." },
+        { status: 429 }
+      );
+    }
     return NextResponse.json({ error: `보고서 생성 중 오류가 발생했습니다: ${message}` }, { status: 500 });
   }
 }
