@@ -1,4 +1,19 @@
 import { extractText } from "unpdf";
+import * as XLSX from "xlsx";
+
+const EXCEL_CONTENT_TYPES = [
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+  "application/vnd.ms-excel", // .xls
+];
+
+function parseExcelBuffer(buffer: ArrayBuffer): string {
+  const workbook = XLSX.read(buffer, { type: "buffer" });
+  return workbook.SheetNames.map((name) => {
+    const sheet = workbook.Sheets[name];
+    const csv = XLSX.utils.sheet_to_csv(sheet);
+    return `--- 시트: ${name} ---\n${csv}`;
+  }).join("\n\n");
+}
 
 export async function parseDataBuffer(buffer: ArrayBuffer, contentType: string): Promise<string> {
   if (contentType === "application/pdf") {
@@ -6,7 +21,11 @@ export async function parseDataBuffer(buffer: ArrayBuffer, contentType: string):
     return Array.isArray(text) ? text.join("\n") : String(text);
   }
 
-  // CSV, TXT, or plain text Excel fallback
+  if (EXCEL_CONTENT_TYPES.includes(contentType)) {
+    return parseExcelBuffer(buffer);
+  }
+
+  // CSV or TXT
   const decoded = new TextDecoder("utf-8").decode(buffer);
   return decoded;
 }
