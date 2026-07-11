@@ -42,6 +42,10 @@ export default function MonthlyReportPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportHtml, setReportHtml] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dataPreview, setDataPreview] = useState<string | null>(null);
+  const [dataPreviewTruncated, setDataPreviewTruncated] = useState(false);
+  const [isDataPreviewLoading, setIsDataPreviewLoading] = useState(false);
+  const [dataPreviewError, setDataPreviewError] = useState<string | null>(null);
 
   const onDropData = useCallback((acceptedFiles: File[]) => {
     const f = acceptedFiles[0];
@@ -49,6 +53,22 @@ export default function MonthlyReportPage() {
     setDataFile(f);
     setReportHtml(null);
     setError(null);
+    setDataPreview(null);
+    setDataPreviewError(null);
+    setIsDataPreviewLoading(true);
+    const form = new FormData();
+    form.append("dataFile", f);
+    fetch("/api/monthly-report/preview", { method: "POST", body: form })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.error) throw new Error(result.error);
+        setDataPreview(result.preview);
+        setDataPreviewTruncated(!!result.truncated);
+      })
+      .catch((err) => {
+        setDataPreviewError(err instanceof Error ? err.message : "파일 미리보기를 불러오지 못했습니다.");
+      })
+      .finally(() => setIsDataPreviewLoading(false));
   }, []);
 
   const onDropDesign = useCallback((acceptedFiles: File[]) => {
@@ -397,7 +417,13 @@ ${linkTag}
                     <p className="text-sm font-semibold text-slate-800 text-center break-all px-2">{dataFile.name}</p>
                     <p className="text-xs text-slate-400 mt-1">{(dataFile.size / 1024).toFixed(1)} KB</p>
                     <button
-                      onClick={(e) => { e.stopPropagation(); setDataFile(null); setReportHtml(null); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDataFile(null);
+                        setReportHtml(null);
+                        setDataPreview(null);
+                        setDataPreviewError(null);
+                      }}
                       className="mt-3 flex items-center gap-1 text-xs text-rose-500 hover:text-rose-700"
                     >
                       <X className="w-3 h-3" />삭제
@@ -475,6 +501,38 @@ ${linkTag}
               </div>
             </div>
           </div>
+
+          {/* Data File Content Preview */}
+          {dataFile && (
+            <div className="mb-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-semibold text-slate-800">업로드한 데이터 미리보기</span>
+                {dataPreviewTruncated && (
+                  <span className="ml-auto text-xs text-slate-400">일부만 표시됨</span>
+                )}
+              </div>
+              <div className="p-5">
+                {isDataPreviewLoading && (
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    파일 내용을 불러오는 중...
+                  </div>
+                )}
+                {dataPreviewError && (
+                  <div className="flex items-start gap-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{dataPreviewError}</span>
+                  </div>
+                )}
+                {!isDataPreviewLoading && dataPreview && (
+                  <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-slate-50 border border-slate-100 p-4 text-xs text-slate-600 leading-relaxed">
+                    {dataPreview}
+                  </pre>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* How it works hint */}
           {dataFile && !designFile && (

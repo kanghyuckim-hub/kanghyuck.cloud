@@ -1,21 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractText } from "unpdf";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { parseDataFile } from "@/lib/parseDataFile";
 
 export const maxDuration = 60;
-
-async function parseDataFile(file: File): Promise<string> {
-  const buffer = await file.arrayBuffer();
-
-  if (file.type === "application/pdf") {
-    const { text } = await extractText(new Uint8Array(buffer), { mergePages: true });
-    return Array.isArray(text) ? text.join("\n") : String(text);
-  }
-
-  // CSV, TXT, or plain text Excel fallback
-  const decoded = new TextDecoder("utf-8").decode(buffer);
-  return decoded;
-}
 
 export async function POST(request: NextRequest) {
   try {
