@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, type FileRejection } from "react-dropzone";
+import { upload } from "@vercel/blob/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -34,9 +35,18 @@ const SIDEBAR_MENUS = [
   { label: "월간실적보고", href: "/auto-report", icon: ClipboardList },
 ];
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
+function rejectionMessage(rejections: FileRejection[]): string {
+  const tooLarge = rejections.some((r) => r.errors.some((e) => e.code === "file-too-large"));
+  if (tooLarge) return "파일 크기는 최대 50MB까지 지원됩니다.";
+  return "지원하지 않는 파일 형식입니다.";
+}
+
 export default function MonthlyReportPage() {
   const pathname = usePathname();
   const [dataFile, setDataFile] = useState<File | null>(null);
+  const [dataFileBlobUrl, setDataFileBlobUrl] = useState<string | null>(null);
   const [designFile, setDesignFile] = useState<File | null>(null);
   const [designPreview, setDesignPreview] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -47,18 +57,38 @@ export default function MonthlyReportPage() {
   const [isDataPreviewLoading, setIsDataPreviewLoading] = useState(false);
   const [dataPreviewError, setDataPreviewError] = useState<string | null>(null);
 
-  const onDropData = useCallback((acceptedFiles: File[]) => {
+  const clearDataFile = () => {
+    setDataFile(null);
+    setDataFileBlobUrl(null);
+    setReportHtml(null);
+    setDataPreview(null);
+    setDataPreviewError(null);
+  };
+
+  const onDropData = useCallback((acceptedFiles: File[], rejections: FileRejection[]) => {
+    if (rejections.length > 0) {
+      setDataPreviewError(rejectionMessage(rejections));
+      return;
+    }
     const f = acceptedFiles[0];
     if (!f) return;
     setDataFile(f);
+    setDataFileBlobUrl(null);
     setReportHtml(null);
     setError(null);
     setDataPreview(null);
     setDataPreviewError(null);
     setIsDataPreviewLoading(true);
-    const form = new FormData();
-    form.append("dataFile", f);
-    fetch("/api/monthly-report/preview", { method: "POST", body: form })
+
+    upload(f.name, f, { access: "public", handleUploadUrl: "/api/monthly-report/blob-upload" })
+      .then((blob) => {
+        setDataFileBlobUrl(blob.url);
+        return fetch("/api/monthly-report/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dataFileUrl: blob.url, dataFileType: f.type }),
+        });
+      })
       .then((res) => res.json())
       .then((result) => {
         if (result.error) throw new Error(result.error);
@@ -66,12 +96,16 @@ export default function MonthlyReportPage() {
         setDataPreviewTruncated(!!result.truncated);
       })
       .catch((err) => {
-        setDataPreviewError(err instanceof Error ? err.message : "파일 미리보기를 불러오지 못했습니다.");
+        setDataPreviewError(err instanceof Error ? err.message : "파일 업로드 또는 미리보기에 실패했습니다.");
       })
       .finally(() => setIsDataPreviewLoading(false));
   }, []);
 
-  const onDropDesign = useCallback((acceptedFiles: File[]) => {
+  const onDropDesign = useCallback((acceptedFiles: File[], rejections: FileRejection[]) => {
+    if (rejections.length > 0) {
+      setError(rejectionMessage(rejections));
+      return;
+    }
     const f = acceptedFiles[0];
     if (!f) return;
     setDesignFile(f);
@@ -100,6 +134,7 @@ export default function MonthlyReportPage() {
       "text/plain": [".txt"],
     },
     maxFiles: 1,
+    maxSize: MAX_FILE_SIZE,
   });
 
   const {
@@ -115,18 +150,20 @@ export default function MonthlyReportPage() {
       "application/pdf": [".pdf"],
     },
     maxFiles: 1,
+    maxSize: MAX_FILE_SIZE,
   });
 
   const handleGenerate = async () => {
-    if (!dataFile || !designFile) return;
+    if (!dataFile || !dataFileBlobUrl) return;
     setIsGenerating(true);
     setError(null);
     setReportHtml(null);
     setHtmlHistory([]);
     try {
       const form = new FormData();
-      form.append("dataFile", dataFile);
-      form.append("designFile", designFile);
+      form.append("dataFileUrl", dataFileBlobUrl);
+      form.append("dataFileType", dataFile.type);
+      if (designFile) form.append("designFile", designFile);
       const res = await fetch("/api/monthly-report/generate", { method: "POST", body: form });
       const result = await res.json();
       if (!res.ok || result.error) throw new Error(result.error || "서버 오류");
@@ -336,7 +373,7 @@ ${linkTag}
     }
   };
 
-  const canGenerate = !!dataFile && !isGenerating;
+  const canGenerate = !!dataFile && !!dataFileBlobUrl && !isGenerating;
 
 
   return (
@@ -398,7 +435,7 @@ ${linkTag}
               <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-semibold text-slate-800">실적 데이터 파일</span>
-                <span className="ml-auto text-xs text-slate-400">CSV · Excel · PDF · TXT</span>
+                <span className="ml-auto text-xs text-slate-400">CSV · Excel · PDF · TXT (최대 50MB)</span>
               </div>
               <div
                 {...getDataRoot()}
@@ -419,10 +456,7 @@ ${linkTag}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setDataFile(null);
-                        setReportHtml(null);
-                        setDataPreview(null);
-                        setDataPreviewError(null);
+                        clearDataFile();
                       }}
                       className="mt-3 flex items-center gap-1 text-xs text-rose-500 hover:text-rose-700"
                     >

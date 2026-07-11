@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { parseDataFile } from "@/lib/parseDataFile";
+import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const dataFile = formData.get("dataFile") as File | null;
+    const dataFileUrl = formData.get("dataFileUrl") as string | null;
+    const dataFileType = formData.get("dataFileType") as string | null;
     const designFile = formData.get("designFile") as File | null;
 
-    if (!dataFile) {
+    if (!dataFileUrl || !dataFileType) {
       return NextResponse.json({ error: "데이터 파일이 필요합니다." }, { status: 400 });
     }
 
@@ -18,8 +19,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "GEMINI_API_KEY 환경변수가 설정되지 않았습니다." }, { status: 500 });
     }
 
-    // 1. Parse data file content
-    const dataText = await parseDataFile(dataFile);
+    // 1. Parse data file content (uploaded to Blob storage by the client)
+    const dataText = await fetchAndParseDataFile(dataFileUrl, dataFileType);
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });

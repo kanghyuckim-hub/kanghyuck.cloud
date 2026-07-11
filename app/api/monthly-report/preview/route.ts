@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseDataFile } from "@/lib/parseDataFile";
+import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 
 const MAX_PREVIEW_CHARS = 8000;
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const dataFile = formData.get("dataFile") as File | null;
+    const { dataFileUrl, dataFileType } = (await request.json()) as {
+      dataFileUrl?: string;
+      dataFileType?: string;
+    };
 
-    if (!dataFile) {
+    if (!dataFileUrl || !dataFileType) {
       return NextResponse.json({ error: "데이터 파일이 필요합니다." }, { status: 400 });
     }
 
-    const text = await parseDataFile(dataFile);
+    const text = await fetchAndParseDataFile(dataFileUrl, dataFileType);
     const truncated = text.length > MAX_PREVIEW_CHARS;
 
     return NextResponse.json({
