@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { getDbPool } from "@/lib/db";
 
+export const ALLOWED_LOGIN_EMAIL = "kanghyuck.im@gmail.com";
+
 export interface SessionMember {
   id: string;
   email: string;

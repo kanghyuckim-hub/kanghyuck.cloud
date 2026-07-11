@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { OAuth2Client } from "google-auth-library";
 import { getDbPool } from "@/lib/db";
+import { ALLOWED_LOGIN_EMAIL } from "@/lib/auth";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -37,6 +38,10 @@ export async function GET(request: Request) {
     const payload = ticket.getPayload();
     if (!payload?.sub || !payload.email) {
       throw new Error("Invalid Google ID token payload");
+    }
+
+    if (payload.email !== ALLOWED_LOGIN_EMAIL) {
+      return NextResponse.redirect(`${origin}/?authError=email_not_allowed`);
     }
 
     try {

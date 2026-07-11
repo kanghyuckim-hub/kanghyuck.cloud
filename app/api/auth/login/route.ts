@@ -1,24 +1,25 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { ALLOWED_LOGIN_EMAIL } from "@/lib/auth";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const returnTo = searchParams.get("returnTo") || "/";
+  const safeReturnTo = returnTo.startsWith("/") ? returnTo : "/";
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    return NextResponse.redirect(`${origin}/?authError=google_config_missing`);
-  }
-  const redirectUri = `${origin}/api/auth/google/callback`;
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: "code",
-    scope: "openid email profile",
-    access_type: "offline",
-    prompt: "consent",
-    state: returnTo,
+  // Bypass: skip Google entirely and log in as the fixed test account, in every environment.
+  const cookieValue = Buffer.from(
+    JSON.stringify({ name: "테스트 계정", email: ALLOWED_LOGIN_EMAIL })
+  ).toString("base64");
+  const response = NextResponse.redirect(`${origin}${safeReturnTo}`);
+  const cookieStore = await cookies();
+  cookieStore.set({
+    name: "authUser",
+    value: cookieValue,
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
-
-  return NextResponse.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  return response;
 }
