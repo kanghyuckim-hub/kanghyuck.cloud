@@ -58,12 +58,12 @@ export default function Navbar() {
           >
             권한 신청
           </Link>
-          <Link
+          <a
             href="/api/auth/login"
             className="rounded-full border border-gray-300 px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-100"
           >
             로그인
-          </Link>
+          </a>
         </div>
       </div>
     </nav>
