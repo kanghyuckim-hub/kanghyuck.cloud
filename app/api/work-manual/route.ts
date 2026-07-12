@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbPool } from "@/lib/db";
 import { getSessionMember } from "@/lib/auth";
-import { hasBoardAccess } from "@/lib/board-access";
 import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 
 export interface WorkManualItem {
@@ -11,14 +10,6 @@ export interface WorkManualItem {
 }
 
 export async function GET() {
-  const member = await getSessionMember();
-  if (!member) {
-    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-  }
-  if (!(await hasBoardAccess(member, "work-manual"))) {
-    return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
-  }
-
   try {
     const pool = getDbPool();
     const result = await pool.query<{ id: string; file_name: string; created_at: string }>(

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getDbPool } from "@/lib/db";
-import { getSessionMember } from "@/lib/auth";
-import { hasBoardAccess } from "@/lib/board-access";
 
 export const maxDuration = 60;
 
@@ -22,14 +20,6 @@ interface AskResponse {
 }
 
 export async function POST(request: NextRequest) {
-  const member = await getSessionMember();
-  if (!member) {
-    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-  }
-  if (!(await hasBoardAccess(member, "work-manual"))) {
-    return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
-  }
-
   const { question, history } = (await request.json()) as {
     question?: string;
     history?: ChatTurn[];
