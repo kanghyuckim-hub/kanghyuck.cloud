@@ -28,11 +28,13 @@ import {
   Send,
   RotateCcw,
   Type,
+  SlidersHorizontal,
 } from "lucide-react";
 
 const SIDEBAR_MENUS = [
   { label: "재무분석", href: "/business-analysis", icon: LineChart },
   { label: "월간실적보고", href: "/auto-report", icon: ClipboardList },
+  { label: "실적추정", href: "/performance-estimate", icon: SlidersHorizontal },
 ];
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
