@@ -25,6 +25,7 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
   const [uploadProgress, setUploadProgress] = useState('');
   const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState('');
@@ -87,6 +88,21 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
     await loadManuals();
+  };
+
+  const handleDeleteManual = async (id: string) => {
+    if (!confirm('이 매뉴얼을 삭제하시겠습니까?')) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/work-manual/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) throw new Error(data.error || '매뉴얼 삭제에 실패했습니다.');
+      await loadManuals();
+    } catch (err) {
+      setManualsError(err instanceof Error ? err.message : '매뉴얼 삭제에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleAsk = async (e: React.FormEvent) => {
@@ -166,10 +182,22 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
           {!manualsLoading && !manualsError && manuals.length > 0 && (
             <ul className="space-y-1">
               {manuals.map((m) => (
-                <li key={m.id} className="flex items-center justify-between text-sm text-slate-600">
+                <li key={m.id} className="flex items-center justify-between gap-2 text-sm text-slate-600">
                   <span className="truncate">{m.fileName}</span>
-                  <span className="shrink-0 text-xs text-slate-400">
-                    {new Date(m.createdAt).toLocaleDateString('ko-KR')}
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="text-xs text-slate-400">
+                      {new Date(m.createdAt).toLocaleDateString('ko-KR')}
+                    </span>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteManual(m.id)}
+                        disabled={deletingId === m.id}
+                        className="text-xs font-medium text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {deletingId === m.id ? '삭제 중...' : '삭제'}
+                      </button>
+                    )}
                   </span>
                 </li>
               ))}
