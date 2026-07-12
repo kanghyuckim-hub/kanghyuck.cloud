@@ -1,9 +1,19 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, type FileRejection } from "react-dropzone";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   Upload,
   FileText,
@@ -26,6 +36,8 @@ import {
   ExternalLink,
   LineChart,
   ClipboardList,
+  Scale,
+  RotateCcw,
 } from "lucide-react";
 
 const SIDEBAR_MENUS = [
@@ -111,6 +123,116 @@ const initialValuationInputs: ValuationInputs = {
   projectionYears: 5,
 };
 
+function calculateRatiosFor(financialData: FinancialData) {
+  const { revenue, operatingIncome, netIncome, totalAssets, totalLiabilities, totalEquity, currentAssets, currentLiabilities, priorRevenue, priorNetIncome, priorOperatingIncome, priorTotalAssets, priorTotalEquity } = financialData;
+  return {
+    opm: revenue > 0 ? (operatingIncome / revenue) * 100 : 0,
+    npm: revenue > 0 ? (netIncome / revenue) * 100 : 0,
+    roe: totalEquity > 0 ? (netIncome / totalEquity) * 100 : 0,
+    roa: totalAssets > 0 ? (netIncome / totalAssets) * 100 : 0,
+    priorOpm: priorRevenue > 0 ? (priorOperatingIncome / priorRevenue) * 100 : 0,
+    priorNpm: priorRevenue > 0 ? (priorNetIncome / priorRevenue) * 100 : 0,
+    priorRoe: priorTotalEquity > 0 ? (priorNetIncome / priorTotalEquity) * 100 : 0,
+    priorRoa: priorTotalAssets > 0 ? (priorNetIncome / priorTotalAssets) * 100 : 0,
+    debtRatio: totalEquity > 0 ? (totalLiabilities / totalEquity) * 100 : 0,
+    currentRatio: currentLiabilities > 0 ? (currentAssets / currentLiabilities) * 100 : 0,
+    equityRatio: totalAssets > 0 ? (totalEquity / totalAssets) * 100 : 0,
+    revenueGrowth: priorRevenue > 0 ? ((revenue - priorRevenue) / priorRevenue) * 100 : 0,
+    netIncomeGrowth: priorNetIncome !== 0 ? ((netIncome - priorNetIncome) / Math.abs(priorNetIncome)) * 100 : 0,
+    opIncomeGrowth: priorOperatingIncome !== 0 ? ((operatingIncome - priorOperatingIncome) / Math.abs(priorOperatingIncome)) * 100 : 0,
+    assetGrowth: priorTotalAssets > 0 ? ((totalAssets - priorTotalAssets) / priorTotalAssets) * 100 : 0,
+  };
+}
+
+function calculateValuationsFor(financialData: FinancialData, valuationInputs: ValuationInputs) {
+  const { netIncome, totalEquity, operatingIncome, totalLiabilities, cash } = financialData;
+  const { discountRate, terminalGrowthRate, projectionYears } = valuationInputs;
+  const fcf = netIncome * 1.1;
+  let dcfValue = 0;
+  for (let i = 1; i <= projectionYears; i++) {
+    const projectedFcf = fcf * Math.pow(1.03, i);
+    dcfValue += projectedFcf / Math.pow(1 + discountRate / 100, i);
+  }
+  const terminalValue = (fcf * Math.pow(1.03, projectionYears) * (1 + terminalGrowthRate / 100)) / ((discountRate - terminalGrowthRate) / 100);
+  dcfValue += terminalValue / Math.pow(1 + discountRate / 100, projectionYears);
+  const perValue = netIncome * INDUSTRY_AVERAGE.per;
+  const pbrValue = totalEquity * INDUSTRY_AVERAGE.pbr;
+  const ebitda = operatingIncome * 1.2;
+  const evEbitdaValue = ebitda * INDUSTRY_AVERAGE.evEbitda - totalLiabilities + cash;
+  return { dcf: dcfValue, per: perValue, pbr: pbrValue, evEbitda: Math.max(0, evEbitdaValue), average: (dcfValue + perValue + pbrValue + Math.max(0, evEbitdaValue)) / 4 };
+}
+
+function getInvestmentRatingFor(roe: number): "BUY" | "HOLD" | "SELL" {
+  return roe > INDUSTRY_AVERAGE.roe * 1.1 ? "BUY" : roe > INDUSTRY_AVERAGE.roe * 0.8 ? "HOLD" : "SELL";
+}
+
+// 비교 테이블에서 열(지표) 기준 최고/최저값 강조
+function highlightClass(value: number, all: number[], higherIsBetter: boolean = true): string {
+  if (all.length < 2) return "";
+  const max = Math.max(...all);
+  const min = Math.min(...all);
+  if (max === min) return "";
+  const isBest = higherIsBetter ? value === max : value === min;
+  const isWorst = higherIsBetter ? value === min : value === max;
+  if (isBest) return "text-emerald-600";
+  if (isWorst) return "text-rose-600";
+  return "text-slate-700";
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapParsedData(d: any): FinancialData {
+  return {
+    companyName: d.companyName || "",
+    fiscalYear: d.fiscalYear || "",
+    industry: "건축설계/엔지니어링",
+    revenue: d.revenue || 0,
+    operatingIncome: d.operatingIncome || 0,
+    netIncome: d.netIncome || 0,
+    priorRevenue: d.priorYearData?.revenue || 0,
+    priorOperatingIncome: d.priorYearData?.operatingIncome || 0,
+    priorNetIncome: d.priorYearData?.netIncome || 0,
+    totalAssets: d.totalAssets || 0,
+    totalLiabilities: d.totalLiabilities || 0,
+    totalEquity: d.totalEquity || 0,
+    currentAssets: d.currentAssets || 0,
+    currentLiabilities: d.currentLiabilities || 0,
+    inventory: d.inventory || 0,
+    cash: d.cash || 0,
+    receivables: d.receivables || 0,
+    priorTotalAssets: d.priorYearData?.totalAssets || 0,
+    priorTotalEquity: d.priorYearData?.totalEquity || 0,
+    priorCash: d.priorYearData?.cash || 0,
+    operatingCashFlow: d.operatingCashFlow || 0,
+    investingCashFlow: d.investingCashFlow || 0,
+    financingCashFlow: d.financingCashFlow || 0,
+    priorOperatingCashFlow: d.priorYearData?.operatingCashFlow || 0,
+    priorInvestingCashFlow: d.priorYearData?.investingCashFlow || 0,
+    priorFinancingCashFlow: d.priorYearData?.financingCashFlow || 0,
+  };
+}
+
+interface CompanyReport {
+  id: string;
+  fileName: string;
+  data: FinancialData;
+  ratios: ReturnType<typeof calculateRatiosFor>;
+  valuations: ReturnType<typeof calculateValuationsFor>;
+  rating: "BUY" | "HOLD" | "SELL";
+}
+
+const MAX_COMPARE_FILES = 10;
+
+async function parsePdfToFinancialData(uploadedFile: File): Promise<FinancialData> {
+  const formData = new FormData();
+  formData.append("file", uploadedFile);
+  const response = await fetch("/api/parse-pdf", { method: "POST", body: formData });
+  const result = await response.json();
+  if (!result.success || !result.data) {
+    throw new Error(result.error || "PDF에서 재무 데이터를 추출하지 못했습니다.");
+  }
+  return mapParsedData(result.data);
+}
+
 export default function BusinessAnalysisPage() {
   const pathname = usePathname();
   const [step, setStep] = useState(1);
@@ -121,102 +243,92 @@ export default function BusinessAnalysisPage() {
   const [showResults, setShowResults] = useState(false);
   const [isPptLoading, setIsPptLoading] = useState(false);
 
+  // 비교분석 모드 (2개 이상 파일 업로드 시)
+  const [mode, setMode] = useState<"single" | "compare">("single");
+  const [compareReports, setCompareReports] = useState<CompanyReport[]>([]);
+  const [compareLoading, setCompareLoading] = useState(false);
+  const [compareErrors, setCompareErrors] = useState<string[]>([]);
+
+  const resetToUpload = () => {
+    setMode("single");
+    setStep(1);
+    setFile(null);
+    setFinancialData(initialFinancialData);
+    setShowResults(false);
+    setCompareReports([]);
+    setCompareErrors([]);
+  };
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const uploadedFile = acceptedFiles[0];
-    if (uploadedFile) {
+    if (acceptedFiles.length === 0) return;
+
+    if (acceptedFiles.length === 1) {
+      const uploadedFile = acceptedFiles[0];
+      setMode("single");
       setFile(uploadedFile);
       setIsLoading(true);
       try {
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-        const response = await fetch("/api/parse-pdf", { method: "POST", body: formData });
-        const result = await response.json();
-        
-        if (result.success && result.data) {
-          const d = result.data;
-          // API 응답을 프론트엔드 구조로 매핑
-          setFinancialData({
-            companyName: d.companyName || "",
-            fiscalYear: d.fiscalYear || "",
-            industry: "건축설계/엔지니어링",
-            revenue: d.revenue || 0,
-            operatingIncome: d.operatingIncome || 0,
-            netIncome: d.netIncome || 0,
-            priorRevenue: d.priorYearData?.revenue || 0,
-            priorOperatingIncome: d.priorYearData?.operatingIncome || 0,
-            priorNetIncome: d.priorYearData?.netIncome || 0,
-            totalAssets: d.totalAssets || 0,
-            totalLiabilities: d.totalLiabilities || 0,
-            totalEquity: d.totalEquity || 0,
-            currentAssets: d.currentAssets || 0,
-            currentLiabilities: d.currentLiabilities || 0,
-            inventory: d.inventory || 0,
-            cash: d.cash || 0,
-            receivables: d.receivables || 0,
-            priorTotalAssets: d.priorYearData?.totalAssets || 0,
-            priorTotalEquity: d.priorYearData?.totalEquity || 0,
-            priorCash: d.priorYearData?.cash || 0,
-            operatingCashFlow: d.operatingCashFlow || 0,
-            investingCashFlow: d.investingCashFlow || 0,
-            financingCashFlow: d.financingCashFlow || 0,
-            priorOperatingCashFlow: d.priorYearData?.operatingCashFlow || 0,
-            priorInvestingCashFlow: d.priorYearData?.investingCashFlow || 0,
-            priorFinancingCashFlow: d.priorYearData?.financingCashFlow || 0,
-          });
-          setStep(2);
-        }
+        const data = await parsePdfToFinancialData(uploadedFile);
+        setFinancialData(data);
+        setStep(2);
       } catch (error) {
         console.error("PDF parsing error:", error);
       } finally {
         setIsLoading(false);
       }
+      return;
+    }
+
+    // 파일 2개 이상: 비교분석 모드로 전환, 각 파일을 병렬 파싱
+    setMode("compare");
+    setCompareLoading(true);
+    setCompareErrors([]);
+    setCompareReports([]);
+
+    const results = await Promise.allSettled(
+      acceptedFiles.map((f) => parsePdfToFinancialData(f))
+    );
+
+    const reports: CompanyReport[] = [];
+    const errors: string[] = [];
+    results.forEach((result, i) => {
+      if (result.status === "fulfilled") {
+        const data = result.value;
+        const ratios = calculateRatiosFor(data);
+        const valuations = calculateValuationsFor(data, initialValuationInputs);
+        reports.push({
+          id: `${acceptedFiles[i].name}-${i}`,
+          fileName: acceptedFiles[i].name,
+          data,
+          ratios,
+          valuations,
+          rating: getInvestmentRatingFor(ratios.roe),
+        });
+      } else {
+        errors.push(`${acceptedFiles[i].name}: ${result.reason instanceof Error ? result.reason.message : "분석 실패"}`);
+      }
+    });
+
+    setCompareReports(reports);
+    setCompareErrors(errors);
+    setCompareLoading(false);
+  }, []);
+
+  const onDropRejected = useCallback((rejections: FileRejection[]) => {
+    if (rejections.some((r) => r.errors.some((e) => e.code === "too-many-files"))) {
+      setCompareErrors([`한 번에 최대 ${MAX_COMPARE_FILES}개까지 업로드할 수 있습니다.`]);
     }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: { "application/pdf": [".pdf"] },
-    maxFiles: 1,
+    maxFiles: MAX_COMPARE_FILES,
   });
 
-  const calculateRatios = () => {
-    const { revenue, operatingIncome, netIncome, totalAssets, totalLiabilities, totalEquity, currentAssets, currentLiabilities, priorRevenue, priorNetIncome, priorOperatingIncome, priorTotalAssets, priorTotalEquity } = financialData;
-    return {
-      opm: revenue > 0 ? (operatingIncome / revenue) * 100 : 0,
-      npm: revenue > 0 ? (netIncome / revenue) * 100 : 0,
-      roe: totalEquity > 0 ? (netIncome / totalEquity) * 100 : 0,
-      roa: totalAssets > 0 ? (netIncome / totalAssets) * 100 : 0,
-      priorOpm: priorRevenue > 0 ? (priorOperatingIncome / priorRevenue) * 100 : 0,
-      priorNpm: priorRevenue > 0 ? (priorNetIncome / priorRevenue) * 100 : 0,
-      priorRoe: priorTotalEquity > 0 ? (priorNetIncome / priorTotalEquity) * 100 : 0,
-      priorRoa: priorTotalAssets > 0 ? (priorNetIncome / priorTotalAssets) * 100 : 0,
-      debtRatio: totalEquity > 0 ? (totalLiabilities / totalEquity) * 100 : 0,
-      currentRatio: currentLiabilities > 0 ? (currentAssets / currentLiabilities) * 100 : 0,
-      equityRatio: totalAssets > 0 ? (totalEquity / totalAssets) * 100 : 0,
-      revenueGrowth: priorRevenue > 0 ? ((revenue - priorRevenue) / priorRevenue) * 100 : 0,
-      netIncomeGrowth: priorNetIncome !== 0 ? ((netIncome - priorNetIncome) / Math.abs(priorNetIncome)) * 100 : 0,
-      opIncomeGrowth: priorOperatingIncome !== 0 ? ((operatingIncome - priorOperatingIncome) / Math.abs(priorOperatingIncome)) * 100 : 0,
-      assetGrowth: priorTotalAssets > 0 ? ((totalAssets - priorTotalAssets) / priorTotalAssets) * 100 : 0,
-    };
-  };
-
-  const calculateValuations = () => {
-    const { netIncome, totalEquity, operatingIncome, totalLiabilities, cash } = financialData;
-    const { discountRate, terminalGrowthRate, projectionYears } = valuationInputs;
-    const fcf = netIncome * 1.1;
-    let dcfValue = 0;
-    for (let i = 1; i <= projectionYears; i++) {
-      const projectedFcf = fcf * Math.pow(1.03, i);
-      dcfValue += projectedFcf / Math.pow(1 + discountRate / 100, i);
-    }
-    const terminalValue = (fcf * Math.pow(1.03, projectionYears) * (1 + terminalGrowthRate / 100)) / ((discountRate - terminalGrowthRate) / 100);
-    dcfValue += terminalValue / Math.pow(1 + discountRate / 100, projectionYears);
-    const perValue = netIncome * INDUSTRY_AVERAGE.per;
-    const pbrValue = totalEquity * INDUSTRY_AVERAGE.pbr;
-    const ebitda = operatingIncome * 1.2;
-    const evEbitdaValue = ebitda * INDUSTRY_AVERAGE.evEbitda - totalLiabilities + cash;
-    return { dcf: dcfValue, per: perValue, pbr: pbrValue, evEbitda: Math.max(0, evEbitdaValue), average: (dcfValue + perValue + pbrValue + Math.max(0, evEbitdaValue)) / 4 };
-  };
+  const calculateRatios = () => calculateRatiosFor(financialData);
+  const calculateValuations = () => calculateValuationsFor(financialData, valuationInputs);
 
   const generateProjections = () => {
     const { revenue, operatingIncome, netIncome } = financialData;
@@ -358,6 +470,8 @@ export default function BusinessAnalysisPage() {
         </aside>
 
       <main className="flex-1 max-w-7xl mx-auto px-6 py-8">
+        {mode === "single" && (
+        <>
         {/* Progress */}
         <div className="flex items-center gap-3 mb-10">
           {[{ num: 1, label: "파일 업로드" }, { num: 2, label: "데이터 확인" }, { num: 3, label: "평가 변수" }, { num: 4, label: "분석 결과" }].map((s, i) => (
@@ -377,6 +491,7 @@ export default function BusinessAnalysisPage() {
             <div className="text-center mb-10">
               <h2 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">감사보고서 업로드</h2>
               <p className="text-slate-500 text-lg">금융감독원 DART 공시시스템의 감사보고서 PDF를 업로드하세요</p>
+              <p className="text-slate-400 text-sm mt-2">여러 기업의 PDF를 한 번에 선택하면(최대 {MAX_COMPARE_FILES}개) 자동으로 비교분석 화면으로 이동합니다</p>
             </div>
             <div {...getRootProps()} className={`relative border-2 border-dashed rounded-3xl p-16 text-center cursor-pointer transition-all overflow-hidden ${isDragActive ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-400 bg-white shadow-sm"}`}>
               <input {...getInputProps()} />
@@ -385,7 +500,7 @@ export default function BusinessAnalysisPage() {
                   {isLoading ? <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /> : <Upload className="w-8 h-8 text-blue-600" />}
                 </div>
                 <p className="text-xl text-slate-900 mb-2 font-medium">{isLoading ? "PDF 분석 중..." : isDragActive ? "파일을 놓으세요" : "클릭하거나 파일을 드래그하세요"}</p>
-                <p className="text-sm text-slate-400">PDF 파일만 지원됩니다 (최대 50MB)</p>
+                <p className="text-sm text-slate-400">PDF 파일만 지원됩니다 (최대 50MB, 최대 {MAX_COMPARE_FILES}개 동시 선택 가능)</p>
               </div>
             </div>
             {file && (
@@ -393,6 +508,11 @@ export default function BusinessAnalysisPage() {
                 <FileText className="w-5 h-5 text-blue-600" />
                 <span className="text-sm text-slate-700 flex-1 truncate">{file.name}</span>
                 <CheckCircle className="w-5 h-5 text-emerald-500" />
+              </div>
+            )}
+            {compareErrors.length > 0 && (
+              <div className="mt-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">
+                {compareErrors.map((e) => <div key={e}>{e}</div>)}
               </div>
             )}
           </div>
@@ -1038,6 +1158,134 @@ export default function BusinessAnalysisPage() {
                 {isPptLoading ? "생성 중..." : "IR 보고서 다운로드"}
               </button>
             </div>
+          </div>
+        )}
+        </>
+        )}
+
+        {/* 비교분석 모드 (2개 이상 파일 업로드) */}
+        {mode === "compare" && (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Scale className="w-6 h-6 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-slate-900 tracking-tight">기업 비교분석</h2>
+                </div>
+                <p className="text-slate-500">
+                  {compareLoading ? "업로드한 감사보고서를 분석하는 중입니다..." : `${compareReports.length}개 기업의 감사보고서를 비교한 결과입니다`}
+                </p>
+              </div>
+              <button onClick={resetToUpload} className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium text-sm hover:bg-slate-200 transition-all">
+                <RotateCcw className="w-4 h-4" />
+                새로 업로드
+              </button>
+            </div>
+
+            {compareLoading && (
+              <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <div className="w-10 h-10 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                <p className="text-slate-500">PDF들을 병렬로 분석 중입니다...</p>
+              </div>
+            )}
+
+            {!compareLoading && compareErrors.length > 0 && (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
+                <div className="font-semibold mb-1">일부 파일을 분석하지 못했습니다</div>
+                {compareErrors.map((e) => <div key={e}>- {e}</div>)}
+              </div>
+            )}
+
+            {!compareLoading && compareReports.length === 0 && (
+              <div className="text-center py-24 text-slate-500">비교할 수 있는 데이터가 없습니다. 다시 업로드해주세요.</div>
+            )}
+
+            {!compareLoading && compareReports.length > 0 && (
+              <>
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="text-left p-3 font-semibold text-slate-600">기업명</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">회계연도</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">매출(백만)</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">영업이익(백만)</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">순이익(백만)</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">OPM</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">NPM</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">ROE</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">ROA</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">부채비율</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">유동비율</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">매출성장률</th>
+                          <th className="text-right p-3 font-semibold text-slate-600">적정가치(평균)</th>
+                          <th className="text-center p-3 font-semibold text-slate-600">투자의견</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {compareReports.map((r) => {
+                          const ratingColor = r.rating === "BUY" ? "bg-emerald-500 text-white" : r.rating === "HOLD" ? "bg-amber-500 text-white" : "bg-rose-500 text-white";
+                          return (
+                            <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50">
+                              <td className="p-3 font-medium text-slate-900">{r.data.companyName || r.fileName}</td>
+                              <td className="p-3 text-right text-slate-500">{r.data.fiscalYear || "-"}</td>
+                              <td className="p-3 text-right">{formatNumber(r.data.revenue)}</td>
+                              <td className="p-3 text-right">{formatNumber(r.data.operatingIncome)}</td>
+                              <td className="p-3 text-right">{formatNumber(r.data.netIncome)}</td>
+                              <td className={`p-3 text-right font-semibold ${highlightClass(r.ratios.opm, compareReports.map((x) => x.ratios.opm))}`}>{formatPercent(r.ratios.opm)}</td>
+                              <td className={`p-3 text-right font-semibold ${highlightClass(r.ratios.npm, compareReports.map((x) => x.ratios.npm))}`}>{formatPercent(r.ratios.npm)}</td>
+                              <td className={`p-3 text-right font-semibold ${highlightClass(r.ratios.roe, compareReports.map((x) => x.ratios.roe))}`}>{formatPercent(r.ratios.roe)}</td>
+                              <td className={`p-3 text-right font-semibold ${highlightClass(r.ratios.roa, compareReports.map((x) => x.ratios.roa))}`}>{formatPercent(r.ratios.roa)}</td>
+                              <td className={`p-3 text-right ${highlightClass(r.ratios.debtRatio, compareReports.map((x) => x.ratios.debtRatio), false)}`}>{formatPercent(r.ratios.debtRatio)}</td>
+                              <td className={`p-3 text-right ${highlightClass(r.ratios.currentRatio, compareReports.map((x) => x.ratios.currentRatio))}`}>{formatPercent(r.ratios.currentRatio)}</td>
+                              <td className="p-3 text-right">{r.ratios.revenueGrowth > 0 ? "+" : ""}{formatPercent(r.ratios.revenueGrowth)}</td>
+                              <td className="p-3 text-right font-semibold text-blue-600">{formatBillion(r.valuations.average)}</td>
+                              <td className="p-3 text-center"><span className={`px-2.5 py-1 rounded-full text-xs font-bold ${ratingColor}`}>{r.rating}</span></td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">매출 · 영업이익 비교 (백만원)</h3>
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={compareReports.map((r) => ({ name: r.data.companyName || r.fileName, 매출: r.data.revenue, 영업이익: r.data.operatingIncome }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-15} textAnchor="end" height={60} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip formatter={(v: number) => formatNumber(v)} />
+                        <Legend />
+                        <Bar dataKey="매출" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="영업이익" fill="#93c5fd" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">수익성 비교 (%)</h3>
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={compareReports.map((r) => ({ name: r.data.companyName || r.fileName, ROE: Number(r.ratios.roe.toFixed(1)), OPM: Number(r.ratios.opm.toFixed(1)) }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-15} textAnchor="end" height={60} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="ROE" fill="#059669" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="OPM" fill="#a7f3d0" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-400">
+                  적정가치는 업종평균 PER/PBR/EV-EBITDA 및 기본 가치평가 변수(할인율 {initialValuationInputs.discountRate}%, 영구성장률 {initialValuationInputs.terminalGrowthRate}%, 추정기간 {initialValuationInputs.projectionYears}년)를 적용한 참고값이며, 단일 기업 분석처럼 변수를 개별 조정할 수는 없습니다.
+                </p>
+              </>
+            )}
           </div>
         )}
       </main>
