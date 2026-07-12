@@ -3,7 +3,7 @@ export default function StrategyJourneyArt() {
     <svg
       viewBox="0 0 800 450"
       role="img"
-      aria-label="산길을 오르는 여정과 성장 곡선으로 표현한 경영전략 이미지"
+      aria-label="나침반이 가리키는 방향과 단계별 이정표를 따라 정상에 오르는 경영전략 이미지"
       className="h-auto w-full max-w-[800px] rounded-lg shadow-md"
     >
       <defs>
@@ -112,10 +112,49 @@ export default function StrategyJourneyArt() {
         opacity="0.8"
       />
 
+      {/* 방법: 정상까지의 단계별 이정표 */}
+      {[
+        { x: 203, y: 411, n: 1 },
+        { x: 305, y: 300, n: 2 },
+        { x: 360, y: 228, n: 3 },
+      ].map((wp) => (
+        <g key={wp.n}>
+          <circle cx={wp.x} cy={wp.y} r="9" fill="#f4f1ea" stroke="#e9b04a" strokeWidth="2" />
+          <text x={wp.x} y={wp.y + 3.5} fontSize="9" fontWeight="700" textAnchor="middle" fill="#3f4a5f">
+            {wp.n}
+          </text>
+        </g>
+      ))}
+
       {/* 정상의 깃발 */}
       <line x1="420" y1="140" x2="420" y2="102" stroke="#f4f1ea" strokeWidth="2" strokeLinecap="round" />
       <path d="M420,102 L448,110.5 L420,120 Z" fill="#e9b04a" />
       <circle cx="420" cy="140" r="3.5" fill="#f4f1ea" />
+
+      {/* 방향: 정상을 가리키는 나침반 */}
+      <g transform="translate(76,76)">
+        <circle r="34" fill="#f8fafc" fillOpacity="0.75" stroke="#94a3b8" strokeWidth="1.5" />
+        <circle r="34" fill="none" stroke="#e9b04a" strokeWidth="1" strokeDasharray="1 4" opacity="0.6" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+          <line
+            key={deg}
+            x1={0}
+            y1={-34}
+            x2={0}
+            y2={deg % 90 === 0 ? -27 : -30}
+            stroke="#64748b"
+            strokeWidth={deg % 90 === 0 ? 1.5 : 1}
+            transform={`rotate(${deg})`}
+          />
+        ))}
+        {/* 목표(정상) 방향을 가리키는 바늘 */}
+        <g transform="rotate(52)">
+          <path d="M0,-26 L6,4 L0,-2 L-6,4 Z" fill="#e9b04a" />
+          <path d="M0,26 L5,4 L0,10 L-5,4 Z" fill="#94a3b8" />
+        </g>
+        <circle r="3.5" fill="#3f4a5f" />
+        <text x="0" y="-42" fontSize="10" fontWeight="700" textAnchor="middle" fill="#475569">N</text>
+      </g>
     </svg>
   );
 }
