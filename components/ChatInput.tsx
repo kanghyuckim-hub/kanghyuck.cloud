@@ -84,7 +84,7 @@ export default function ChatInput() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto h-screen flex flex-col bg-gray-50">
+    <div className="w-full max-w-4xl mx-auto h-[50vh] flex flex-col bg-gray-50">
       {/* 메시지 표시 영역 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
