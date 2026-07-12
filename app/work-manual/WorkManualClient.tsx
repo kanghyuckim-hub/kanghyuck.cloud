@@ -6,6 +6,7 @@ import { upload } from '@vercel/blob/client';
 interface WorkManualItem {
   id: string;
   fileName: string;
+  blobUrl: string;
   createdAt: string;
 }
 
@@ -33,6 +34,8 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
   const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState('');
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState('');
@@ -132,6 +135,21 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
     }
   };
 
+  const handleUpdateManual = async (id: string) => {
+    setUpdatingId(id);
+    setUpdateError('');
+    try {
+      const res = await fetch(`/api/work-manual/${id}/update`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) throw new Error(data.error || '업데이트본 생성에 실패했습니다.');
+      await loadManuals();
+    } catch (err) {
+      setUpdateError(err instanceof Error ? err.message : '업데이트본 생성에 실패했습니다.');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const handleAsk = async (e: React.FormEvent) => {
     e.preventDefault();
     const q = question.trim();
@@ -215,20 +233,42 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
                     <span className="text-xs text-slate-400">
                       {new Date(m.createdAt).toLocaleDateString('ko-KR')}
                     </span>
+                    <a
+                      href={m.blobUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={m.fileName}
+                      className="text-xs font-medium text-slate-500 hover:text-slate-700"
+                    >
+                      다운로드
+                    </a>
                     {isAdmin && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteManual(m.id)}
-                        disabled={deletingId === m.id}
-                        className="text-xs font-medium text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {deletingId === m.id ? '삭제 중...' : '삭제'}
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateManual(m.id)}
+                          disabled={updatingId === m.id}
+                          className="text-xs font-medium text-blue-600 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {updatingId === m.id ? '생성 중...' : '업데이트본 생성'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteManual(m.id)}
+                          disabled={deletingId === m.id}
+                          className="text-xs font-medium text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {deletingId === m.id ? '삭제 중...' : '삭제'}
+                        </button>
+                      </>
                     )}
                   </span>
                 </li>
               ))}
             </ul>
+          )}
+          {isAdmin && updateError && (
+            <p className="mt-2 whitespace-pre-wrap text-sm text-red-600">{updateError}</p>
           )}
         </div>
 

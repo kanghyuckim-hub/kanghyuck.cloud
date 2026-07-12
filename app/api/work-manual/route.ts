@@ -6,18 +6,20 @@ import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 export interface WorkManualItem {
   id: string;
   fileName: string;
+  blobUrl: string;
   createdAt: string;
 }
 
 export async function GET() {
   try {
     const pool = getDbPool();
-    const result = await pool.query<{ id: string; file_name: string; created_at: string }>(
-      "select id, file_name, created_at from work_manuals order by created_at desc"
+    const result = await pool.query<{ id: string; file_name: string; blob_url: string; created_at: string }>(
+      "select id, file_name, blob_url, created_at from work_manuals order by created_at desc"
     );
     const manuals: WorkManualItem[] = result.rows.map((row) => ({
       id: row.id,
       fileName: row.file_name,
+      blobUrl: row.blob_url,
       createdAt: row.created_at,
     }));
     return NextResponse.json({ manuals });

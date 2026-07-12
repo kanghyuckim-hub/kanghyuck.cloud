@@ -93,7 +93,10 @@ ${historyText ? `━━━ 이전 대화 ━━━\n${historyText}\n━━━━
     }
 
     try {
-      await pool.query("insert into work_manual_questions (question, answer) values ($1, $2)", [question, parsed.answer]);
+      await pool.query(
+        "insert into work_manual_questions (question, answer, source_file) values ($1, $2, $3)",
+        [question, parsed.answer, parsed.sourceFile]
+      );
     } catch (logError) {
       console.error("업무매뉴얼 질문 로그 저장 실패:", logError);
     }
