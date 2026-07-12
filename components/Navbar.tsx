@@ -40,6 +40,12 @@ export default function Navbar() {
             자동보고서
           </a>
           <a
+            href="/work-manual"
+            className="text-sm text-gray-600 transition-colors hover:text-gray-900"
+          >
+            업무매뉴얼
+          </a>
+          <a
             href="/member-management"
             className="text-sm text-gray-600 transition-colors hover:text-gray-900"
           >

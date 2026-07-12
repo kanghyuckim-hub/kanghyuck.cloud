@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDbPool } from "@/lib/db";
 import { getSessionMember } from "@/lib/auth";
+import { hasBoardAccess } from "@/lib/board-access";
 
 export interface MailMessageItem {
   id: string;
@@ -28,22 +29,12 @@ interface MailMessageRow {
   created_at: string;
 }
 
-async function hasMailBoardAccess(userId: string, role: string): Promise<boolean> {
-  if (role === "master" || role === "admin") return true;
-  const pool = getDbPool();
-  const result = await pool.query(
-    "select 1 from user_board_access where user_id = $1 and board_key = 'mail'",
-    [userId]
-  );
-  return (result.rowCount ?? 0) > 0;
-}
-
 export async function GET() {
   const member = await getSessionMember();
   if (!member) {
     return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
-  if (!(await hasMailBoardAccess(member.id, member.role))) {
+  if (!(await hasBoardAccess(member, "mail"))) {
     return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   }
 
