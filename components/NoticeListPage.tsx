@@ -56,75 +56,7 @@ export interface Notice {
   attachments?: Attachment[];
 }
 
-// 샘플 더미 데이터
-const initialNotices: Notice[] = [
-  {
-    id: "1",
-    title: "5월 정기 회의 일정 안내",
-    content:
-      "안녕하세요, 5월 정기 회의는 5월 15일 오후 2시에 진행됩니다. 모든 팀원분들의 참석 부탁드립니다. 회의 안건은 추후 공유 예정입니다.",
-    author: "김팀장",
-    createdAt: "2024-05-10T09:00:00Z",
-    isPinned: true,
-    category: "공지",
-  },
-  {
-    id: "2",
-    title: "신규 프로젝트 킥오프 미팅",
-    content:
-      "새로운 클라이언트 프로젝트가 시작됩니다. 킥오프 미팅에서 프로젝트 개요와 역할 분담에 대해 논의할 예정입니다. 관련 자료는 미리 검토 부탁드립니다.",
-    author: "박매니저",
-    createdAt: "2024-05-08T14:30:00Z",
-    isPinned: false,
-    category: "업무",
-  },
-  {
-    id: "3",
-    title: "사내 복지 혜택 변경 안내",
-    content:
-      "6월부터 사내 복지 혜택이 일부 변경됩니다. 점심 식대 지원금이 인상되며, 새로운 자기계발 지원 프로그램이 추가됩니다. 자세한 내용은 첨부 파일을 확인해주세요.",
-    author: "인사팀",
-    createdAt: "2024-05-07T11:00:00Z",
-    isPinned: true,
-    category: "공지",
-    attachments: [
-      {
-        id: "att1",
-        name: "2024년_복지혜택_안내서.pdf",
-        size: 2048000,
-        type: "application/pdf",
-        url: "/sample.pdf",
-      },
-      {
-        id: "att2",
-        name: "자기계발_지원_신청서.pdf",
-        size: 512000,
-        type: "application/pdf",
-        url: "/sample2.pdf",
-      },
-    ],
-  },
-  {
-    id: "4",
-    title: "개발팀 코드 리뷰 가이드라인",
-    content:
-      "효율적인 코드 리뷰를 위한 새로운 가이드라인을 공유드립니다. PR 작성 시 체크리스트와 리뷰어 지정 규칙을 참고해주세요.",
-    author: "이개발",
-    createdAt: "2024-05-05T16:20:00Z",
-    isPinned: false,
-    category: "업무",
-  },
-  {
-    id: "5",
-    title: "사무실 청소 당번 안내",
-    content:
-      "이번 주 사무실 청소 당번은 기획팀입니다. 금요일 퇴근 전 정리정돈 부탁드립니다. 다음 주 당번은 개발팀입니다.",
-    author: "총무팀",
-    createdAt: "2024-05-03T09:15:00Z",
-    isPinned: false,
-    category: "기타",
-  },
-];
+const initialNotices: Notice[] = [];
 
 // 카테고리 목록
 const categories = ["전체", "공지", "업무", "기타"] as const;
