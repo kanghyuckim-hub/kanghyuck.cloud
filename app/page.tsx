@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { cookies } from "next/headers";
 import ChatInput from "@/components/ChatInput";
+import StrategyJourneyArt from "@/components/StrategyJourneyArt";
 
 type AuthUser = {
   name: string;
@@ -32,7 +32,8 @@ export default async function Home() {
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
         <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-xl">
           <div className="mb-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+            <StrategyJourneyArt />
+            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
                로그인  필요
             </p>
             <h1 className="mt-4 text-3xl font-semibold text-slate-900">
@@ -71,14 +72,9 @@ export default async function Home() {
       )}
 
       <div className="flex flex-1 flex-col items-center justify-center px-4">
-        <Image
-          src="/images/consulting.jpg"
-          alt="경영컨설팅 이미지"
-          width={800}
-          height={450}
-          className="rounded-lg shadow-md"
-          priority
-        />
+        <div className="w-full max-w-2xl">
+          <StrategyJourneyArt />
+        </div>
       </div>
 
       {user && (
