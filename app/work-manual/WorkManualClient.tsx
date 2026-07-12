@@ -22,6 +22,7 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
   const [manualsError, setManualsError] = useState('');
 
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,32 +51,42 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
     loadManuals();
   }, []);
 
-  const handleFileSelected = async (file: File) => {
-    if (file.type !== 'application/pdf') {
+  const handleFilesSelected = async (files: File[]) => {
+    const nonPdf = files.some((f) => f.type !== 'application/pdf');
+    if (nonPdf) {
       setUploadError('PDF 파일만 업로드할 수 있습니다.');
       return;
     }
+
     setUploading(true);
     setUploadError('');
-    try {
-      const blob = await upload(file.name, file, {
-        access: 'public',
-        handleUploadUrl: '/api/work-manual/blob-upload',
-      });
-      const res = await fetch('/api/work-manual', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blobUrl: blob.url, fileName: file.name }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.error) throw new Error(data.error || '매뉴얼 등록에 실패했습니다.');
-      await loadManuals();
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : '매뉴얼 업로드에 실패했습니다.');
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+    const failed: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setUploadProgress(files.length > 1 ? `업로드 및 분석 중... (${i + 1}/${files.length}) ${file.name}` : '업로드 및 분석 중...');
+      try {
+        const blob = await upload(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/work-manual/blob-upload',
+        });
+        const res = await fetch('/api/work-manual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blobUrl: blob.url, fileName: file.name }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.error) throw new Error(data.error || '매뉴얼 등록에 실패했습니다.');
+      } catch (err) {
+        failed.push(`${file.name}: ${err instanceof Error ? err.message : '업로드 실패'}`);
+      }
     }
+
+    if (failed.length > 0) setUploadError(failed.join('\n'));
+    setUploadProgress('');
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    await loadManuals();
   };
 
   const handleAsk = async (e: React.FormEvent) => {
@@ -132,15 +143,16 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
               ref={fileInputRef}
               type="file"
               accept="application/pdf"
+              multiple
               disabled={uploading}
               onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileSelected(file);
+                const files = Array.from(e.target.files ?? []);
+                if (files.length > 0) handleFilesSelected(files);
               }}
               className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-700"
             />
-            {uploading && <p className="mt-2 text-sm text-slate-500">업로드 및 분석 중...</p>}
-            {uploadError && <p className="mt-2 text-sm text-red-600">{uploadError}</p>}
+            {uploading && <p className="mt-2 text-sm text-slate-500">{uploadProgress}</p>}
+            {uploadError && <p className="mt-2 whitespace-pre-wrap text-sm text-red-600">{uploadError}</p>}
           </div>
         )}
 
