@@ -34,6 +34,9 @@ export async function POST(request: NextRequest) {
     const result = await model.generateContentStream({
       contents: [{ role: "user", parts: [{ text: message }] }],
       generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
+      // 설치된 SDK(@google/generative-ai) 타입 정의가 구버전(googleSearchRetrieval)까지만 알고 있어
+      // gemini-3.5-flash가 쓰는 googleSearch 그라운딩 툴은 캐스팅해서 전달한다.
+      tools: [{ googleSearch: {} }] as unknown as never,
     });
     geminiStream = result.stream;
   } catch (error) {
