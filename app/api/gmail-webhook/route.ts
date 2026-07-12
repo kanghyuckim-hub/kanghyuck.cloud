@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyPubSubPushRequest } from "@/lib/google-auth";
-import { listNewMessageIds, getMessage } from "@/lib/gmail";
+import { listNewMessageIds, getMessage, parseMessage } from "@/lib/gmail";
+import { getDbPool } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -46,14 +47,34 @@ export async function POST(request: Request) {
 
   try {
     const messageIds = await listNewMessageIds(String(decoded.historyId));
+    const pool = getDbPool();
     for (const id of messageIds) {
       const message = await getMessage(id);
+      const parsed = parseMessage(message);
       console.log("[gmail-webhook] new message received:", {
-        id: message.id,
-        snippet: message.snippet,
+        id: parsed.id,
+        subject: parsed.subject,
         historyId: message.historyId,
       });
-      // TODO: 여기서 DB 저장 등 후속 처리를 이어갈 수 있다.
+
+      await pool.query(
+        `insert into mail_messages
+          (gmail_message_id, thread_id, from_address, from_name, to_address, subject, snippet, body_text, body_html, received_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         on conflict (gmail_message_id) do nothing`,
+        [
+          parsed.id,
+          parsed.threadId,
+          parsed.from,
+          parsed.fromName,
+          parsed.to,
+          parsed.subject,
+          parsed.snippet,
+          parsed.bodyText,
+          parsed.bodyHtml,
+          parsed.receivedAt,
+        ]
+      );
     }
   } catch (err) {
     // startHistoryId가 너무 오래되어 만료된 경우(404) 등은 재구독으로 복구해야 하므로

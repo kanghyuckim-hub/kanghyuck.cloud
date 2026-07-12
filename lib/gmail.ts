@@ -59,3 +59,63 @@ export async function getMessage(messageId: string) {
   });
   return res.data;
 }
+
+export interface ParsedMessage {
+  id: string;
+  threadId: string | null;
+  from: string | null;
+  fromName: string | null;
+  to: string | null;
+  subject: string | null;
+  snippet: string | null;
+  bodyText: string | null;
+  bodyHtml: string | null;
+  receivedAt: Date | null;
+}
+
+function decodeBase64Url(data: string): string {
+  return Buffer.from(data, "base64url").toString("utf-8");
+}
+
+function findBodyByMimeType(part: gmail_v1.Schema$MessagePart, mimeType: string): string | null {
+  if (part.mimeType === mimeType && part.body?.data) {
+    return decodeBase64Url(part.body.data);
+  }
+  for (const child of part.parts ?? []) {
+    const found = findBodyByMimeType(child, mimeType);
+    if (found) return found;
+  }
+  return null;
+}
+
+function parseFromHeader(fromHeader: string | null): { address: string | null; name: string | null } {
+  if (!fromHeader) return { address: null, name: null };
+  const match = fromHeader.match(/^(.*?)\s*<(.+)>$/);
+  if (match) {
+    return { name: match[1].trim().replace(/^"|"$/g, "") || null, address: match[2].trim() };
+  }
+  return { address: fromHeader.trim(), name: null };
+}
+
+/** Gmail API 메시지를 저장/표시하기 쉬운 형태로 파싱한다. */
+export function parseMessage(message: gmail_v1.Schema$Message): ParsedMessage {
+  const headers = message.payload?.headers ?? [];
+  const getHeader = (name: string) =>
+    headers.find((h) => h.name?.toLowerCase() === name.toLowerCase())?.value ?? null;
+
+  const { address: from, name: fromName } = parseFromHeader(getHeader("From"));
+  const dateHeader = getHeader("Date");
+
+  return {
+    id: message.id ?? "",
+    threadId: message.threadId ?? null,
+    from,
+    fromName,
+    to: getHeader("To"),
+    subject: getHeader("Subject"),
+    snippet: message.snippet ?? null,
+    bodyText: message.payload ? findBodyByMimeType(message.payload, "text/plain") : null,
+    bodyHtml: message.payload ? findBodyByMimeType(message.payload, "text/html") : null,
+    receivedAt: dateHeader ? new Date(dateHeader) : null,
+  };
+}
