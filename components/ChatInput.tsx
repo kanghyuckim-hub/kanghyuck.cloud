@@ -25,20 +25,28 @@ export default function ChatInput() {
     e.preventDefault();
     if (!message.trim() || isLoading) return;
 
-    // 사용자 메시지 추가
+    // 사용자 메시지 + 채워질 AI 답변 자리 추가
     const userMessage: Message = {
       id: Date.now().toString(),
       content: message,
       role: "user",
       timestamp: new Date(),
     };
+    const assistantId = (Date.now() + 1).toString();
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      { id: assistantId, content: "", role: "assistant", timestamp: new Date() },
+    ]);
     setMessage("");
     setIsLoading(true);
 
+    const setAssistantContent = (content: string) => {
+      setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, content } : m)));
+    };
+
     try {
-      // Gemini API 호출
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -47,37 +55,33 @@ export default function ChatInput() {
         body: JSON.stringify({ message: userMessage.content }),
       });
 
-      if (!response.ok) {
+      const contentType = response.headers.get("content-type") || "";
+      if (!response.ok || contentType.includes("application/json")) {
         const errorData = await response.json().catch(() => null);
-        const errorText =
-          errorData?.error || `API 요청 실패 (${response.status})`;
-        throw new Error(errorText);
+        throw new Error(errorData?.error || `API 요청 실패 (${response.status})`);
+      }
+      if (!response.body) {
+        throw new Error("응답을 읽을 수 없습니다.");
       }
 
-      const data = await response.json();
+      // 스트리밍 응답을 받는 대로 타이핑하듯 반영
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
 
-      // AI 응답 추가
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: data.reply,
-        role: "assistant",
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        setAssistantContent(accumulated);
+      }
     } catch (error) {
       console.error("오류:", error);
       const errorText =
         error instanceof Error
           ? error.message
           : "죄송합니다. 요청 처리 중 오류가 발생했습니다.";
-      const errorMessage: Message = {
-        id: (Date.now() + 2).toString(),
-        content: errorText,
-        role: "assistant",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setAssistantContent(errorText);
     } finally {
       setIsLoading(false);
     }
@@ -107,25 +111,22 @@ export default function ChatInput() {
                       : "bg-white text-gray-900 border border-gray-200 rounded-bl-none"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words">
-                    {msg.content}
-                  </p>
+                  {msg.role === "assistant" && msg.content === "" && isLoading ? (
+                    <div className="flex gap-2">
+                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                    </div>
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {msg.content}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
             <div ref={messagesEndRef} />
           </>
-        )}
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-white text-gray-900 border border-gray-200 px-4 py-3 rounded-lg rounded-bl-none">
-              <div className="flex gap-2">
-                <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
-              </div>
-            </div>
-          </div>
         )}
       </div>
 

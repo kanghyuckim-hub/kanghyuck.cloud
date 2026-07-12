@@ -1,57 +1,68 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+function errorResponse(message: string, status: number) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
 export async function POST(request: NextRequest) {
+  const body = await request.json().catch(() => null);
+  const message = body?.message;
+
+  if (!message) {
+    return errorResponse("메시지가 필요합니다", 400);
+  }
+
+  if (!process.env.GEMINI_API_KEY) {
+    console.error(
+      "Gemini API 키가 설정되지 않았습니다. .env.local에 GEMINI_API_KEY 를 설정하세요."
+    );
+    return errorResponse("API 키가 설정되지 않았습니다", 500);
+  }
+
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
+
+  let geminiStream: AsyncGenerator<{ text: () => string }>;
   try {
-    const body = await request.json();
-    const { message } = body;
-
-    if (!message) {
-      return NextResponse.json(
-        { error: "메시지가 필요합니다" },
-        { status: 400 }
-      );
-    }
-
-    if (!process.env.GEMINI_API_KEY) {
-      console.error(
-        'Gemini API 키가 설정되지 않았습니다. .env.local에 GEMINI_API_KEY 를 설정하세요.'
-      );
-      return NextResponse.json(
-        { error: "API 키가 설정되지 않았습니다" },
-        { status: 500 }
-      );
-    }
-
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const modelName = "gemini-3.5-flash";
-    console.log('Calling Gemini model:', modelName);
-    const model = genAI.getGenerativeModel({ model: modelName });
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: message }] }],
+    const result = await model.generateContentStream({
+      contents: [{ role: "user", parts: [{ text: message }] }],
       generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
     });
-    const response = result.response;
-    const text = response.text();
-
-    return NextResponse.json({ reply: text });
+    geminiStream = result.stream;
   } catch (error) {
     console.error("Gemini API 오류:", error);
-
-    let message = "요청 처리 중 오류가 발생했습니다";
-    let status = 500;
-
-    if (error instanceof Error) {
-      message = error.message;
-    }
-
-    if (typeof error === "object" && error !== null && "status" in error) {
-      const statusValue = (error as any).status;
-      if (typeof statusValue === "number") {
-        status = statusValue;
-      }
-    }
-
-    return NextResponse.json({ error: message }, { status });
+    const msg = error instanceof Error ? error.message : "요청 처리 중 오류가 발생했습니다";
+    const status =
+      typeof error === "object" && error !== null && "status" in error && typeof (error as { status: unknown }).status === "number"
+        ? (error as { status: number }).status
+        : 500;
+    return errorResponse(msg, status);
   }
+
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        for await (const chunk of geminiStream) {
+          const text = chunk.text();
+          if (text) controller.enqueue(encoder.encode(text));
+        }
+      } catch (error) {
+        console.error("Gemini 스트리밍 오류:", error);
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
 }
