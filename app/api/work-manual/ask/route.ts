@@ -75,7 +75,7 @@ ${historyText ? `━━━ 이전 대화 ━━━\n${historyText}\n━━━━
 {"answer": "질문에 대한 답변", "found": true 또는 false, "sourceFile": "근거가 된 파일명 또는 null", "sourceExcerpt": "매뉴얼 원문 발췌 또는 null"}`;
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
     const result2 = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
