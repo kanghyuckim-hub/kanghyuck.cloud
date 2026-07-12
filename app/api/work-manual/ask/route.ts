@@ -92,6 +92,12 @@ ${historyText ? `━━━ 이전 대화 ━━━\n${historyText}\n━━━━
       parsed = { answer: raw, found: false, sourceFile: null, sourceExcerpt: null };
     }
 
+    try {
+      await pool.query("insert into work_manual_questions (question, answer) values ($1, $2)", [question, parsed.answer]);
+    } catch (logError) {
+      console.error("업무매뉴얼 질문 로그 저장 실패:", logError);
+    }
+
     return NextResponse.json(parsed);
   } catch (error) {
     console.error("업무매뉴얼 질의응답 오류:", error);

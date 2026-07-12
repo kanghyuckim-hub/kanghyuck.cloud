@@ -16,6 +16,13 @@ interface ChatMessage {
   sourceExcerpt?: string | null;
 }
 
+interface FaqItem {
+  rank: number;
+  question: string;
+  answer: string;
+  askCount: number;
+}
+
 export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
   const [manuals, setManuals] = useState<WorkManualItem[]>([]);
   const [manualsLoading, setManualsLoading] = useState(true);
@@ -32,6 +39,11 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
   const [asking, setAsking] = useState(false);
   const [askError, setAskError] = useState('');
   const [openSourceIndex, setOpenSourceIndex] = useState<number | null>(null);
+
+  const [faq, setFaq] = useState<FaqItem[]>([]);
+  const [faqLoading, setFaqLoading] = useState(true);
+  const [faqError, setFaqError] = useState('');
+  const [openFaqRank, setOpenFaqRank] = useState<number | null>(null);
 
   const loadManuals = async () => {
     setManualsLoading(true);
@@ -50,6 +62,21 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
 
   useEffect(() => {
     loadManuals();
+
+    (async () => {
+      setFaqLoading(true);
+      setFaqError('');
+      try {
+        const res = await fetch('/api/work-manual/faq');
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.error) throw new Error(data.error || '자주묻는질문을 불러오는 중 오류가 발생했습니다.');
+        setFaq(data.faq ?? []);
+      } catch (err) {
+        setFaqError(err instanceof Error ? err.message : '자주묻는질문을 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setFaqLoading(false);
+      }
+    })();
   }, []);
 
   const handleFilesSelected = async (files: File[]) => {
@@ -264,6 +291,44 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
               전송
             </button>
           </form>
+        </div>
+
+        <div className="mt-8 border-t border-slate-100 pt-6">
+          <p className="mb-1 text-sm font-medium text-slate-700">자주 묻는 질문 TOP 15</p>
+          <p className="mb-3 text-xs text-slate-400">실제 질문 기록을 바탕으로 매주 자동 업데이트됩니다.</p>
+
+          {faqLoading && <p className="text-sm text-slate-500">불러오는 중...</p>}
+          {!faqLoading && faqError && <p className="text-sm text-red-600">{faqError}</p>}
+          {!faqLoading && !faqError && faq.length === 0 && (
+            <p className="text-sm text-slate-500">아직 집계된 자주묻는질문이 없습니다.</p>
+          )}
+          {!faqLoading && !faqError && faq.length > 0 && (
+            <ul className="space-y-1">
+              {faq.map((item) => {
+                const isOpen = openFaqRank === item.rank;
+                return (
+                  <li key={item.rank} className="rounded-xl border border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqRank(isOpen ? null : item.rank)}
+                      className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-slate-800 hover:bg-slate-50"
+                    >
+                      <span className="truncate">
+                        <span className="mr-2 text-slate-400">{item.rank}.</span>
+                        {item.question}
+                      </span>
+                      <span className="shrink-0 text-xs text-slate-400">{item.askCount}회</span>
+                    </button>
+                    {isOpen && (
+                      <p className="whitespace-pre-wrap border-t border-slate-100 px-3 py-2.5 text-sm text-slate-600">
+                        {item.answer}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
     </div>
