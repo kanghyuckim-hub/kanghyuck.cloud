@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import {
   FileText,
   Download,
   Eye,
+  Loader2,
 } from "lucide-react";
 
 // 첨부파일 타입 정의
@@ -55,8 +57,6 @@ export interface Notice {
   category: "공지" | "업무" | "기타";
   attachments?: Attachment[];
 }
-
-const initialNotices: Notice[] = [];
 
 // 카테고리 목록
 const categories = ["전체", "공지", "업무", "기타"] as const;
@@ -83,20 +83,18 @@ function truncateContent(content: string, maxLength: number = 80): string {
   return content.slice(0, maxLength) + "...";
 }
 
-interface NoticeListPageProps {
-  notices?: Notice[];
-  onDelete?: (id: string) => void;
-  onNavigate?: (page: string, id?: string) => void;
+// 파일 크기 포맷
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function NoticeListPage({
-  notices: propNotices,
-  onDelete,
-  onNavigate,
-}: NoticeListPageProps) {
-  // 내부 fallback state (props 없이도 동작)
-  const [internalNotices, setInternalNotices] =
-    useState<Notice[]>(initialNotices);
+export default function NoticeListPage() {
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("전체");
 
@@ -109,50 +107,70 @@ export default function NoticeListPage({
     isPinned: false,
     attachments: [] as Attachment[],
   });
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // 상세보기 모달 상태
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
 
-  // props가 있으면 props 사용, 없으면 내부 state 사용
-  const notices = propNotices ?? internalNotices;
+  const loadNotices = async () => {
+    setIsLoading(true);
+    setLoadError("");
+    try {
+      const res = await fetch("/api/notices");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) throw new Error(data.error || "공지사항을 불러오는 중 오류가 발생했습니다.");
+      setNotices(data.notices ?? []);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "공지사항을 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadNotices();
+  }, []);
 
   // 삭제 핸들러
-  const handleDelete = (id: string) => {
-    if (onDelete) {
-      onDelete(id);
-    } else {
-      setInternalNotices((prev) => prev.filter((notice) => notice.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!confirm("이 공지사항을 삭제하시겠습니까?")) return;
+    try {
+      const res = await fetch(`/api/notices/${id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) throw new Error(data.error || "삭제에 실패했습니다.");
+      setNotices((prev) => prev.filter((notice) => notice.id !== id));
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "삭제에 실패했습니다.");
     }
   };
 
-  // 네비게이션 핸들러
-  const handleNavigate = (page: string, id?: string) => {
-    if (onNavigate) {
-      onNavigate(page, id);
-    } else {
-      console.log(`Navigate to ${page}`, id ? `with id: ${id}` : "");
-    }
-  };
-
-  // 파일 업로드 핸들러
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 파일 업로드 핸들러 (Vercel Blob에 실제로 업로드)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
-    const newAttachments: Attachment[] = Array.from(files).map((file) => ({
-      id: `att-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      url: URL.createObjectURL(file),
-    }));
-
-    setNewNotice((prev) => ({
-      ...prev,
-      attachments: [...prev.attachments, ...newAttachments],
-    }));
+    setIsUploadingFile(true);
+    setSubmitError("");
+    try {
+      const uploaded: Attachment[] = [];
+      for (const file of Array.from(files)) {
+        const blob = await upload(file.name, file, {
+          access: "public",
+          handleUploadUrl: "/api/notices/blob-upload",
+        });
+        uploaded.push({ id: blob.url, name: file.name, size: file.size, type: file.type, url: blob.url });
+      }
+      setNewNotice((prev) => ({ ...prev, attachments: [...prev.attachments, ...uploaded] }));
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "파일 업로드에 실패했습니다.");
+    } finally {
+      setIsUploadingFile(false);
+      e.target.value = "";
+    }
   };
 
   // 첨부파일 제거 핸들러
@@ -163,48 +181,42 @@ export default function NoticeListPage({
     }));
   };
 
-  // 파일 크기 포맷
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
   // 상세보기 열기
   const handleOpenDetail = (notice: Notice) => {
-    console.log("[v0] Opening detail for notice:", notice);
-    console.log("[v0] Attachments:", notice.attachments);
     setSelectedNotice(notice);
     setPreviewAttachment(null);
     setIsDetailOpen(true);
   };
 
   // 새 공지 작성 핸들러
-  const handleSubmitNotice = () => {
-    if (!newNotice.title.trim() || !newNotice.content.trim()) {
-      return;
+  const handleSubmitNotice = async () => {
+    if (!newNotice.title.trim() || !newNotice.content.trim()) return;
+
+    setIsSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await fetch("/api/notices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newNotice.title,
+          content: newNotice.content,
+          category: newNotice.category,
+          isPinned: newNotice.isPinned,
+          attachments: newNotice.attachments,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) throw new Error(data.error || "공지사항 작성에 실패했습니다.");
+
+      setNewNotice({ title: "", content: "", category: "공지", isPinned: false, attachments: [] });
+      setIsFormOpen(false);
+      await loadNotices();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "공지사항 작성에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const notice: Notice = {
-      id: Date.now().toString(),
-      title: newNotice.title,
-      content: newNotice.content,
-      author: "나",
-      createdAt: new Date().toISOString(),
-      isPinned: newNotice.isPinned,
-      category: newNotice.category,
-      attachments: newNotice.attachments.length > 0 ? newNotice.attachments : undefined,
-    };
-
-    setInternalNotices((prev) => [notice, ...prev]);
-    setNewNotice({
-      title: "",
-      content: "",
-      category: "공지",
-      isPinned: false,
-      attachments: [],
-    });
-    setIsFormOpen(false);
   };
 
   // 필터링 로직
@@ -342,16 +354,22 @@ export default function NoticeListPage({
                     multiple
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
                     onChange={handleFileUpload}
+                    disabled={isUploadingFile}
                     className="hidden"
                     id="file-upload"
                   />
                   <Button
                     type="button"
                     variant="outline"
+                    disabled={isUploadingFile}
                     onClick={() => document.getElementById("file-upload")?.click()}
                   >
-                    <Paperclip className="mr-2 h-4 w-4" />
-                    파일 첨부
+                    {isUploadingFile ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Paperclip className="mr-2 h-4 w-4" />
+                    )}
+                    {isUploadingFile ? "업로드 중..." : "파일 첨부"}
                   </Button>
                 </div>
                 {/* 첨부된 파일 목록 */}
@@ -401,18 +419,22 @@ export default function NoticeListPage({
                 </Label>
               </div>
 
+              {submitError && <p className="text-sm text-red-600">{submitError}</p>}
+
               {/* 버튼 영역 */}
               <div className="flex justify-end gap-3 pt-4">
                 <Button
                   variant="outline"
                   onClick={() => setIsFormOpen(false)}
+                  disabled={isSubmitting}
                 >
                   취소
                 </Button>
                 <Button
                   onClick={handleSubmitNotice}
-                  disabled={!newNotice.title.trim() || !newNotice.content.trim()}
+                  disabled={!newNotice.title.trim() || !newNotice.content.trim() || isSubmitting || isUploadingFile}
                 >
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   작성 완료
                 </Button>
               </div>
@@ -592,7 +614,11 @@ export default function NoticeListPage({
         </Dialog>
 
         {/* 공지 카드 목록 */}
-        {filteredNotices.length > 0 ? (
+        {isLoading && <p className="py-10 text-center text-sm text-gray-500">불러오는 중...</p>}
+        {!isLoading && loadError && (
+          <p className="py-10 text-center text-sm text-red-600">{loadError}</p>
+        )}
+        {!isLoading && !loadError && filteredNotices.length > 0 ? (
           <div className="space-y-4">
             {filteredNotices.map((notice) => (
               <Card
@@ -665,11 +691,12 @@ export default function NoticeListPage({
               </Card>
             ))}
           </div>
-        ) : (
+        ) : null}
+        {!isLoading && !loadError && filteredNotices.length === 0 && (
           /* 빈 상태 */
           <div className="flex flex-col items-center justify-center py-20 text-gray-500">
             <Inbox className="mb-4 h-16 w-16 text-gray-300" />
-            <p className="text-lg">검색 결과가 없습니다</p>
+            <p className="text-lg">등록된 공지사항이 없습니다</p>
           </div>
         )}
       </div>
