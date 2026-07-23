@@ -6,6 +6,28 @@ export const maxDuration = 60;
 
 const MAX_TEXT_CHARS = 100000;
 
+function isOverloadedError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message.toLowerCase() : "";
+  return msg.includes("503") || msg.includes("service unavailable") || msg.includes("overloaded") || msg.includes("high demand");
+}
+
+type GenerativeModel = ReturnType<GoogleGenerativeAI["getGenerativeModel"]>;
+
+// Gemini가 일시적으로 과부하(503)일 때 한 번만 짧게 재시도한다.
+async function generateWithRetry(
+  model: GenerativeModel,
+  request: Parameters<GenerativeModel["generateContent"]>[0],
+  requestOptions?: Parameters<GenerativeModel["generateContent"]>[1]
+) {
+  try {
+    return await model.generateContent(request, requestOptions);
+  } catch (error) {
+    if (!isOverloadedError(error)) throw error;
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    return await model.generateContent(request, requestOptions);
+  }
+}
+
 export interface ProjectRecord {
   organization: string;
   projectName: string;
@@ -60,7 +82,7 @@ ${text}
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
-    const result = await model.generateContent({
+    const result = await generateWithRetry(model, {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
     });
@@ -98,6 +120,12 @@ ${text}
     return NextResponse.json({ success: true, unit: parsed.unit || "원", projects });
   } catch (error) {
     console.error("실적추정 파일 분석 오류:", error);
+    if (isOverloadedError(error)) {
+      return NextResponse.json(
+        { success: false, error: "AI 서버가 일시적으로 혼잡합니다. 잠시(1~2분) 후 다시 시도해주세요." },
+        { status: 503 }
+      );
+    }
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
     return NextResponse.json({ success: false, error: `파일 분석 중 오류가 발생했습니다: ${message}` }, { status: 500 });
   }
