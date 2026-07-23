@@ -79,17 +79,30 @@ ${historyText ? `━━━ 이전 대화 ━━━\n${historyText}\n━━━━
 
     const result2 = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
+      generationConfig: { temperature: 0.2, maxOutputTokens: 4096 },
     });
 
     let raw = result2.response.text().trim();
     raw = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+    const jsonStart = raw.indexOf("{");
+    const jsonEnd = raw.lastIndexOf("}");
+    if (jsonStart !== -1 && jsonEnd > jsonStart) {
+      raw = raw.slice(jsonStart, jsonEnd + 1);
+    }
 
     let parsed: AskResponse;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      parsed = { answer: raw, found: false, sourceFile: null, sourceExcerpt: null };
+      const answerMatch = raw.match(/"answer"\s*:\s*"((?:\\.|[^"\\])*)"/);
+      parsed = {
+        answer: answerMatch
+          ? JSON.parse(`"${answerMatch[1]}"`)
+          : "답변을 생성했지만 형식이 올바르지 않아 표시할 수 없습니다. 다시 질문해주세요.",
+        found: false,
+        sourceFile: null,
+        sourceExcerpt: null,
+      };
     }
 
     try {
