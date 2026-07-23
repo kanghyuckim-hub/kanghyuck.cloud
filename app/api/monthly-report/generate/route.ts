@@ -129,6 +129,12 @@ ${commonRules}`;
         { status: 429 }
       );
     }
+    if (message.toLowerCase().includes("document has no pages")) {
+      return NextResponse.json(
+        { error: "업로드하신 디자인 샘플 PDF를 읽지 못했습니다 (손상되었거나 암호가 걸려있을 수 있습니다). 다른 PDF를 사용하거나 PNG/JPG 이미지로 다시 시도해주세요." },
+        { status: 400 }
+      );
+    }
     return NextResponse.json({ error: `보고서 생성 중 오류가 발생했습니다: ${message}` }, { status: 500 });
   }
 }

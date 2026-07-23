@@ -7,8 +7,14 @@ function isPdf(bytes: Uint8Array): boolean {
 }
 
 function isZipContainer(bytes: Uint8Array): boolean {
-  // "PK" — .xlsx/.xls (and other Office Open XML formats) are zip archives
+  // "PK" — .xlsx (and other Office Open XML formats) are zip archives
   return bytes[0] === 0x50 && bytes[1] === 0x4b;
+}
+
+function isOle2Container(bytes: Uint8Array): boolean {
+  // D0 CF 11 E0 A1 B1 1A E1 — legacy binary Office format (.xls, .doc, ...)
+  const sig = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
+  return sig.every((byte, i) => bytes[i] === byte);
 }
 
 function parseExcelBuffer(buffer: ArrayBuffer): string {
@@ -28,7 +34,7 @@ export async function parseDataBuffer(buffer: ArrayBuffer): Promise<string> {
     return Array.isArray(text) ? text.join("\n") : String(text);
   }
 
-  if (isZipContainer(bytes)) {
+  if (isZipContainer(bytes) || isOle2Container(bytes)) {
     return parseExcelBuffer(buffer);
   }
 
