@@ -5,7 +5,12 @@ import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 export const maxDuration = 60;
 
 // Gemini 2.5 Flash 무료 등급의 분당 입력 토큰 한도(250,000)를 넘지 않도록 안전하게 제한
-const MAX_DATA_TEXT_CHARS = 100000;
+// (Vercel Hobby 플랜의 maxDuration 60초 안에 끝내기 위해 여유있게 제한)
+const MAX_DATA_TEXT_CHARS = 50000;
+
+// maxDuration(60초)을 넘기면 Vercel이 함수를 강제 종료해서 JSON이 아닌 플랫폼
+// 오류 페이지를 반환하므로, 그보다 먼저 우리가 요청을 중단하고 깔끔한 에러를 내려준다.
+const GEMINI_TIMEOUT_MS = 50000;
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +44,9 @@ export async function POST(request: NextRequest) {
 4. 데이터를 표, KPI 카드, 바 차트(HTML/CSS로 구현), 전월 대비 증감률 등으로 시각적으로 표현하세요.
 5. 전문적이고 인쇄 가능한 보고서 형태로 만드세요. 너비는 A4 기준(800px 내외)으로 구성하세요.
 6. HTML 코드만 반환하세요. 마크다운 코드 블록(\`\`\`html)이나 부가 설명은 포함하지 마세요.`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
 
     let result;
 
@@ -76,8 +84,8 @@ ${commonRules}
             },
           ],
         }],
-        generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
-      });
+        generationConfig: { temperature: 0.35, maxOutputTokens: 6144 },
+      }, { signal: controller.signal });
     } else {
       // ── 디자인 샘플 없음: AI 자체 디자인 ────────────────────────
       const promptAutoDesign = `당신은 전문 보고서 디자이너입니다.
@@ -101,9 +109,11 @@ ${commonRules}`;
           role: "user",
           parts: [{ text: promptAutoDesign }],
         }],
-        generationConfig: { temperature: 0.5, maxOutputTokens: 8192 },
-      });
+        generationConfig: { temperature: 0.5, maxOutputTokens: 6144 },
+      }, { signal: controller.signal });
     }
+
+    clearTimeout(timeoutId);
 
     let html = result.response.text();
 
@@ -122,6 +132,12 @@ ${commonRules}`;
     return NextResponse.json({ html });
   } catch (error) {
     console.error("월간보고서 생성 오류:", error);
+    if (error instanceof Error && error.name === "AbortError") {
+      return NextResponse.json(
+        { error: "보고서 생성이 시간 제한을 초과했습니다. 데이터 파일 크기를 줄이거나, 디자인 샘플 없이 다시 시도해주세요." },
+        { status: 504 }
+      );
+    }
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
     if (message.includes("429") || message.toLowerCase().includes("quota")) {
       return NextResponse.json(

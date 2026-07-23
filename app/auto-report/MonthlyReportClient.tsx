@@ -167,7 +167,17 @@ export default function MonthlyReportPage() {
       form.append("dataFileType", dataFile.type);
       if (designFile) form.append("designFile", designFile);
       const res = await fetch("/api/monthly-report/generate", { method: "POST", body: form });
-      const result = await res.json();
+      const raw = await res.text();
+      let result: { html?: string; error?: string };
+      try {
+        result = JSON.parse(raw);
+      } catch {
+        throw new Error(
+          res.status === 504
+            ? "보고서 생성이 시간 제한을 초과했습니다. 데이터 파일 크기를 줄이거나, 디자인 샘플 없이 다시 시도해주세요."
+            : "서버에서 예상치 못한 응답을 받았습니다. 잠시 후 다시 시도해주세요."
+        );
+      }
       if (!res.ok || result.error) throw new Error(result.error || "서버 오류");
       setReportHtml(result.html);
     } catch (err) {
