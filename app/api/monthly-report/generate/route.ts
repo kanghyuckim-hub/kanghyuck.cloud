@@ -19,18 +19,21 @@ function isOverloadedError(error: unknown): boolean {
 
 type GenerativeModel = ReturnType<GoogleGenerativeAI["getGenerativeModel"]>;
 
-// Gemini가 일시적으로 과부하(503)일 때 한 번만 짧게 재시도한다.
+// Gemini가 일시적으로 과부하(503)일 때 대기 시간을 늘려가며 최대 3번 재시도한다.
+const RETRY_DELAYS_MS = [2000, 5000, 10000];
+
 async function generateWithRetry(
   model: GenerativeModel,
   request: Parameters<GenerativeModel["generateContent"]>[0],
   requestOptions?: Parameters<GenerativeModel["generateContent"]>[1]
 ) {
-  try {
-    return await model.generateContent(request, requestOptions);
-  } catch (error) {
-    if (!isOverloadedError(error)) throw error;
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    return await model.generateContent(request, requestOptions);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await model.generateContent(request, requestOptions);
+    } catch (error) {
+      if (!isOverloadedError(error) || attempt >= RETRY_DELAYS_MS.length) throw error;
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+    }
   }
 }
 
