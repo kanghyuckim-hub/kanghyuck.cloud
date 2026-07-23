@@ -31,13 +31,7 @@ export default function Navbar() {
             href="/business-analysis"
             className="text-sm text-gray-600 transition-colors hover:text-gray-900"
           >
-            재무분석
-          </a>
-          <a
-            href="/auto-report"
-            className="text-sm text-gray-600 transition-colors hover:text-gray-900"
-          >
-            자동보고서
+            경영분석
           </a>
           <a
             href="/work-manual"
