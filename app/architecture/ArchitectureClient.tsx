@@ -72,6 +72,8 @@ function formatPrice(price: string) {
 export default function ArchitecturePage() {
   const [tab, setTab] = useState<TabId>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   const isLawTab = tab === "law";
   const apiUrl = isLawTab
@@ -95,15 +97,25 @@ export default function ArchitecturePage() {
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
+  const minPriceWon = minPrice ? Number(minPrice) * 10000 : null;
+  const maxPriceWon = maxPrice ? Number(maxPrice) * 10000 : null;
 
   const filteredBids = !isLawTab
     ? (data as BidResponse | undefined)?.bids.filter((bid) => {
-        if (!normalizedQuery) return true;
-        return (
-          bid.title.toLowerCase().includes(normalizedQuery) ||
-          bid.ntceInsttNm.toLowerCase().includes(normalizedQuery) ||
-          bid.dminsttNm.toLowerCase().includes(normalizedQuery)
-        );
+        if (normalizedQuery) {
+          const matchesQuery =
+            bid.title.toLowerCase().includes(normalizedQuery) ||
+            bid.ntceInsttNm.toLowerCase().includes(normalizedQuery) ||
+            bid.dminsttNm.toLowerCase().includes(normalizedQuery);
+          if (!matchesQuery) return false;
+        }
+        if (minPriceWon !== null || maxPriceWon !== null) {
+          const price = Number(bid.presmptPrce);
+          if (!bid.presmptPrce || Number.isNaN(price)) return false;
+          if (minPriceWon !== null && price < minPriceWon) return false;
+          if (maxPriceWon !== null && price > maxPriceWon) return false;
+        }
+        return true;
       })
     : undefined;
 
@@ -179,6 +191,43 @@ export default function ArchitecturePage() {
             </button>
           )}
         </div>
+
+        {/* 추정가격 범위 검색 */}
+        {!isLawTab && (
+          <div className="mb-6 flex flex-wrap items-center gap-2">
+            <span className="text-sm text-gray-600">추정가격</span>
+            <Input
+              type="number"
+              inputMode="numeric"
+              placeholder="최소 (만원)"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-32"
+            />
+            <span className="text-sm text-gray-400">~</span>
+            <Input
+              type="number"
+              inputMode="numeric"
+              placeholder="최대 (만원)"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-32"
+            />
+            {(minPrice || maxPrice) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMinPrice("");
+                  setMaxPrice("");
+                }}
+                className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-3.5 w-3.5" />
+                초기화
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Config error notice */}
         {data?.error && (
