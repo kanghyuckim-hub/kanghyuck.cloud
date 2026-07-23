@@ -106,7 +106,17 @@ export default function PerformanceEstimateClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dataFileUrl: blob.url }),
       });
-      const result = await response.json();
+      const raw = await response.text();
+      let result: { success: boolean; error?: string; unit?: string; projects?: ProjectRecord[] };
+      try {
+        result = JSON.parse(raw);
+      } catch {
+        throw new Error(
+          response.status === 504
+            ? "분석이 시간 제한을 초과했습니다. 파일 크기를 줄여서 다시 시도해주세요."
+            : "서버에서 예상치 못한 응답을 받았습니다. 잠시 후 다시 시도해주세요."
+        );
+      }
       if (!result.success) throw new Error(result.error || "파일 분석에 실패했습니다.");
 
       setUnit(result.unit || "원");

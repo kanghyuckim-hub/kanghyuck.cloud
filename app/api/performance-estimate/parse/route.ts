@@ -4,7 +4,12 @@ import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 
 export const maxDuration = 60;
 
-const MAX_TEXT_CHARS = 100000;
+// Vercel Hobby 플랜의 maxDuration 60초 안에 끝내기 위해 여유있게 제한
+const MAX_TEXT_CHARS = 50000;
+
+// maxDuration(60초)을 넘기면 Vercel이 함수를 강제 종료해서 JSON이 아닌 플랫폼
+// 오류 페이지를 반환하므로, 그보다 먼저 우리가 요청을 중단하고 깔끔한 에러를 내려준다.
+const GEMINI_TIMEOUT_MS = 50000;
 
 function isOverloadedError(error: unknown): boolean {
   const msg = error instanceof Error ? error.message.toLowerCase() : "";
@@ -82,10 +87,15 @@ ${text}
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+
     const result = await generateWithRetry(model, {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
-    });
+    }, { signal: controller.signal });
+
+    clearTimeout(timeoutId);
 
     if (result.response.candidates?.[0]?.finishReason === "MAX_TOKENS") {
       return NextResponse.json(
@@ -120,6 +130,12 @@ ${text}
     return NextResponse.json({ success: true, unit: parsed.unit || "원", projects });
   } catch (error) {
     console.error("실적추정 파일 분석 오류:", error);
+    if (error instanceof Error && error.name === "AbortError") {
+      return NextResponse.json(
+        { success: false, error: "분석이 시간 제한을 초과했습니다. 파일 크기를 줄여서 다시 시도해주세요." },
+        { status: 504 }
+      );
+    }
     if (isOverloadedError(error)) {
       return NextResponse.json(
         { success: false, error: "AI 서버가 일시적으로 혼잡합니다. 잠시(1~2분) 후 다시 시도해주세요." },
