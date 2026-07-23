@@ -12,6 +12,28 @@ const MAX_DATA_TEXT_CHARS = 50000;
 // 오류 페이지를 반환하므로, 그보다 먼저 우리가 요청을 중단하고 깔끔한 에러를 내려준다.
 const GEMINI_TIMEOUT_MS = 50000;
 
+function isOverloadedError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message.toLowerCase() : "";
+  return msg.includes("503") || msg.includes("service unavailable") || msg.includes("overloaded") || msg.includes("high demand");
+}
+
+type GenerativeModel = ReturnType<GoogleGenerativeAI["getGenerativeModel"]>;
+
+// Gemini가 일시적으로 과부하(503)일 때 한 번만 짧게 재시도한다.
+async function generateWithRetry(
+  model: GenerativeModel,
+  request: Parameters<GenerativeModel["generateContent"]>[0],
+  requestOptions?: Parameters<GenerativeModel["generateContent"]>[1]
+) {
+  try {
+    return await model.generateContent(request, requestOptions);
+  } catch (error) {
+    if (!isOverloadedError(error)) throw error;
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    return await model.generateContent(request, requestOptions);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -72,7 +94,7 @@ ${dataText}
 ${commonRules}
 4-1. 디자인 샘플의 색상, 레이아웃, 섹션 구조를 최대한 반영하세요.`;
 
-      result = await model.generateContent({
+      result = await generateWithRetry(model, {
         contents: [{
           role: "user",
           parts: [
@@ -105,7 +127,7 @@ ${dataText}
 - 보고서 상단에 회사명/기간 등 헤더 정보를 포함하세요.
 ${commonRules}`;
 
-      result = await model.generateContent({
+      result = await generateWithRetry(model, {
         contents: [{
           role: "user",
           parts: [{ text: promptAutoDesign }],
@@ -158,6 +180,12 @@ ${commonRules}`;
       return NextResponse.json(
         { error: "업로드하신 디자인 샘플 PDF를 읽지 못했습니다 (손상되었거나 암호가 걸려있을 수 있습니다). 다른 PDF를 사용하거나 PNG/JPG 이미지로 다시 시도해주세요." },
         { status: 400 }
+      );
+    }
+    if (isOverloadedError(error)) {
+      return NextResponse.json(
+        { error: "AI 서버가 일시적으로 혼잡합니다. 잠시(1~2분) 후 다시 시도해주세요." },
+        { status: 503 }
       );
     }
     return NextResponse.json({ error: `보고서 생성 중 오류가 발생했습니다: ${message}` }, { status: 500 });
