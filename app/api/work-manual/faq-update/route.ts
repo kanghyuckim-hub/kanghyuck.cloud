@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getDbPool } from "@/lib/db";
+import { isOverloadedError, withGeminiFallback } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -71,12 +72,12 @@ ${logText}
 [{"question": "...", "answer": "...", "count": 3}, ...]`;
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-
-    const result2 = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 4096 },
-    });
+    const result2 = await withGeminiFallback(genAI, (model) =>
+      model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 4096 },
+      })
+    );
 
     let raw = result2.response.text().trim();
     raw = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
@@ -107,6 +108,12 @@ ${logText}
   } catch (error) {
     console.error("[work-manual/faq-update] 집계 실패:", error);
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
+    if (isOverloadedError(error)) {
+      return NextResponse.json(
+        { error: "AI 서버가 일시적으로 혼잡합니다. 잠시(1~2분) 후 다시 시도해주세요." },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: `FAQ 집계 중 오류가 발생했습니다: ${message}` }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fetchAndParseDataFile } from "@/lib/parseDataFile";
+import { isOverloadedError, withGeminiFallback } from "@/lib/gemini";
 
 export const maxDuration = 60;
 
@@ -11,31 +12,6 @@ const MAX_DATA_TEXT_CHARS = 50000;
 // maxDuration(60초)을 넘기면 Vercel이 함수를 강제 종료해서 JSON이 아닌 플랫폼
 // 오류 페이지를 반환하므로, 그보다 먼저 우리가 요청을 중단하고 깔끔한 에러를 내려준다.
 const GEMINI_TIMEOUT_MS = 50000;
-
-function isOverloadedError(error: unknown): boolean {
-  const msg = error instanceof Error ? error.message.toLowerCase() : "";
-  return msg.includes("503") || msg.includes("service unavailable") || msg.includes("overloaded") || msg.includes("high demand");
-}
-
-type GenerativeModel = ReturnType<GoogleGenerativeAI["getGenerativeModel"]>;
-
-// Gemini가 일시적으로 과부하(503)일 때 대기 시간을 늘려가며 최대 3번 재시도한다.
-const RETRY_DELAYS_MS = [2000, 5000, 10000];
-
-async function generateWithRetry(
-  model: GenerativeModel,
-  request: Parameters<GenerativeModel["generateContent"]>[0],
-  requestOptions?: Parameters<GenerativeModel["generateContent"]>[1]
-) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await model.generateContent(request, requestOptions);
-    } catch (error) {
-      if (!isOverloadedError(error) || attempt >= RETRY_DELAYS_MS.length) throw error;
-      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
-    }
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,7 +35,6 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
     const commonRules = `
 생성 규칙:
@@ -97,21 +72,26 @@ ${dataText}
 ${commonRules}
 4-1. 디자인 샘플의 색상, 레이아웃, 섹션 구조를 최대한 반영하세요.`;
 
-      result = await generateWithRetry(model, {
-        contents: [{
-          role: "user",
-          parts: [
-            { text: promptWithDesign },
-            {
-              inlineData: {
-                mimeType: designFile.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif" | "application/pdf",
-                data: designBase64,
-              },
-            },
-          ],
-        }],
-        generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
-      }, { signal: controller.signal });
+      result = await withGeminiFallback(genAI, (model) =>
+        model.generateContent(
+          {
+            contents: [{
+              role: "user",
+              parts: [
+                { text: promptWithDesign },
+                {
+                  inlineData: {
+                    mimeType: designFile.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif" | "application/pdf",
+                    data: designBase64,
+                  },
+                },
+              ],
+            }],
+            generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
+          },
+          { signal: controller.signal }
+        )
+      );
     } else {
       // ── 디자인 샘플 없음: AI 자체 디자인 ────────────────────────
       const promptAutoDesign = `당신은 전문 보고서 디자이너입니다.
@@ -130,13 +110,18 @@ ${dataText}
 - 보고서 상단에 회사명/기간 등 헤더 정보를 포함하세요.
 ${commonRules}`;
 
-      result = await generateWithRetry(model, {
-        contents: [{
-          role: "user",
-          parts: [{ text: promptAutoDesign }],
-        }],
-        generationConfig: { temperature: 0.5, maxOutputTokens: 8192 },
-      }, { signal: controller.signal });
+      result = await withGeminiFallback(genAI, (model) =>
+        model.generateContent(
+          {
+            contents: [{
+              role: "user",
+              parts: [{ text: promptAutoDesign }],
+            }],
+            generationConfig: { temperature: 0.5, maxOutputTokens: 8192 },
+          },
+          { signal: controller.signal }
+        )
+      );
     }
 
     clearTimeout(timeoutId);

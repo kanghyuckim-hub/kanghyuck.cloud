@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest } from "next/server";
+import { withGeminiFallback } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -27,17 +28,18 @@ export async function POST(request: NextRequest) {
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
   let geminiStream: AsyncGenerator<{ text: () => string }>;
   try {
-    const result = await model.generateContentStream({
-      contents: [{ role: "user", parts: [{ text: message }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
-      // 설치된 SDK(@google/generative-ai) 타입 정의가 구버전(googleSearchRetrieval)까지만 알고 있어
-      // gemini-3.5-flash가 쓰는 googleSearch 그라운딩 툴은 캐스팅해서 전달한다.
-      tools: [{ googleSearch: {} }] as unknown as never,
-    });
+    const result = await withGeminiFallback(genAI, (model) =>
+      model.generateContentStream({
+        contents: [{ role: "user", parts: [{ text: message }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
+        // 설치된 SDK(@google/generative-ai) 타입 정의가 구버전(googleSearchRetrieval)까지만 알고 있어
+        // gemini-3.5-flash가 쓰는 googleSearch 그라운딩 툴은 캐스팅해서 전달한다.
+        tools: [{ googleSearch: {} }] as unknown as never,
+      })
+    );
     geminiStream = result.stream;
   } catch (error) {
     console.error("Gemini API 오류:", error);

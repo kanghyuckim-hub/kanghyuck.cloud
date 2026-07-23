@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fetchAndParseDataFile } from "@/lib/parseDataFile";
+import { isOverloadedError, withGeminiFallback } from "@/lib/gemini";
 
 export const maxDuration = 60;
 
@@ -10,31 +11,6 @@ const MAX_TEXT_CHARS = 50000;
 // maxDuration(60초)을 넘기면 Vercel이 함수를 강제 종료해서 JSON이 아닌 플랫폼
 // 오류 페이지를 반환하므로, 그보다 먼저 우리가 요청을 중단하고 깔끔한 에러를 내려준다.
 const GEMINI_TIMEOUT_MS = 50000;
-
-function isOverloadedError(error: unknown): boolean {
-  const msg = error instanceof Error ? error.message.toLowerCase() : "";
-  return msg.includes("503") || msg.includes("service unavailable") || msg.includes("overloaded") || msg.includes("high demand");
-}
-
-type GenerativeModel = ReturnType<GoogleGenerativeAI["getGenerativeModel"]>;
-
-// Gemini가 일시적으로 과부하(503)일 때 대기 시간을 늘려가며 최대 3번 재시도한다.
-const RETRY_DELAYS_MS = [2000, 5000, 10000];
-
-async function generateWithRetry(
-  model: GenerativeModel,
-  request: Parameters<GenerativeModel["generateContent"]>[0],
-  requestOptions?: Parameters<GenerativeModel["generateContent"]>[1]
-) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await model.generateContent(request, requestOptions);
-    } catch (error) {
-      if (!isOverloadedError(error) || attempt >= RETRY_DELAYS_MS.length) throw error;
-      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
-    }
-  }
-}
 
 export interface ProjectRecord {
   organization: string;
@@ -88,15 +64,19 @@ ${text}
 {"unit": "백만원", "projects": [{"organization": "...", "projectName": "...", "contractAmount": 0, "totalEstimatedCost": 0, "actualCostIncurred": 0, "plannedDurationDays": 0}]}`;
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
 
-    const result = await generateWithRetry(model, {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
-    }, { signal: controller.signal });
+    const result = await withGeminiFallback(genAI, (model) =>
+      model.generateContent(
+        {
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
+        },
+        { signal: controller.signal }
+      )
+    );
 
     clearTimeout(timeoutId);
 

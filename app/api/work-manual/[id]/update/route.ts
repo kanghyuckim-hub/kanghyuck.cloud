@@ -3,6 +3,7 @@ import { put } from "@vercel/blob";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getDbPool } from "@/lib/db";
 import { getSessionMember } from "@/lib/auth";
+import { isOverloadedError, withGeminiFallback } from "@/lib/gemini";
 
 export const maxDuration = 60;
 
@@ -72,12 +73,12 @@ ${qaText}
 5. 마크다운 본문만 반환하세요. 다른 설명이나 코드 블록 표시(\`\`\`)는 포함하지 마세요.`;
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 8192 },
-    });
+    const result = await withGeminiFallback(genAI, (model) =>
+      model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 8192 },
+      })
+    );
 
     let updatedMarkdown = result.response.text().trim();
     updatedMarkdown = updatedMarkdown.replace(/^```(markdown)?\s*/i, "").replace(/\s*```$/i, "").trim();
@@ -113,6 +114,12 @@ ${qaText}
   } catch (error) {
     console.error("업무매뉴얼 업데이트본 생성 오류:", error);
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
+    if (isOverloadedError(error)) {
+      return NextResponse.json(
+        { error: "AI 서버가 일시적으로 혼잡합니다. 잠시(1~2분) 후 다시 시도해주세요." },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: `업데이트본 생성 중 오류가 발생했습니다: ${message}` }, { status: 500 });
   }
 }

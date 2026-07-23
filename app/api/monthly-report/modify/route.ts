@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { isOverloadedError, withGeminiFallback } from "@/lib/gemini";
 
 export const maxDuration = 60;
 
@@ -16,7 +17,6 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
     const prompt = `당신은 HTML 보고서 디자이너입니다.
 
@@ -34,10 +34,12 @@ export async function POST(request: NextRequest) {
 ${html}
 ━━━━━━━━━━━━━━━━`;
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 8192 },
-    });
+    const result = await withGeminiFallback(genAI, (model) =>
+      model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 8192 },
+      })
+    );
 
     let modified = result.response.text();
 
@@ -55,6 +57,12 @@ ${html}
   } catch (error) {
     console.error("보고서 수정 오류:", error);
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
+    if (isOverloadedError(error)) {
+      return NextResponse.json(
+        { error: "AI 서버가 일시적으로 혼잡합니다. 잠시(1~2분) 후 다시 시도해주세요." },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: `보고서 수정 중 오류가 발생했습니다: ${message}` }, { status: 500 });
   }
 }
