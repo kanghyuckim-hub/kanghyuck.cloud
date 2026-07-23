@@ -43,7 +43,8 @@ export async function POST(request: NextRequest) {
 3. 한국어로 작성하세요.
 4. 데이터를 표, KPI 카드, 바 차트(HTML/CSS로 구현), 전월 대비 증감률 등으로 시각적으로 표현하세요.
 5. 전문적이고 인쇄 가능한 보고서 형태로 만드세요. 너비는 A4 기준(800px 내외)으로 구성하세요.
-6. HTML 코드만 반환하세요. 마크다운 코드 블록(\`\`\`html)이나 부가 설명은 포함하지 마세요.`;
+6. HTML 코드만 반환하세요. 마크다운 코드 블록(\`\`\`html)이나 부가 설명은 포함하지 마세요.
+7. 매우 중요: 원본 데이터의 모든 행을 표에 그대로 나열하지 마세요. 프로젝트/부서 단위로 집계하거나 최근 12개월 정도로 요약해서, 표는 핵심 항목 위주로 간결하게(각 표 15행 이내) 구성하세요. 출력 길이 제한 때문에 보고서가 중간에 잘리지 않는 것이 표를 빠짐없이 나열하는 것보다 훨씬 중요합니다.`;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
@@ -84,7 +85,7 @@ ${commonRules}
             },
           ],
         }],
-        generationConfig: { temperature: 0.35, maxOutputTokens: 6144 },
+        generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
       }, { signal: controller.signal });
     } else {
       // ── 디자인 샘플 없음: AI 자체 디자인 ────────────────────────
@@ -109,11 +110,19 @@ ${commonRules}`;
           role: "user",
           parts: [{ text: promptAutoDesign }],
         }],
-        generationConfig: { temperature: 0.5, maxOutputTokens: 6144 },
+        generationConfig: { temperature: 0.5, maxOutputTokens: 8192 },
       }, { signal: controller.signal });
     }
 
     clearTimeout(timeoutId);
+
+    const finishReason = result.response.candidates?.[0]?.finishReason;
+    if (finishReason === "MAX_TOKENS") {
+      return NextResponse.json(
+        { error: "데이터 양이 많아 보고서 생성 도중 응답이 잘렸습니다. 데이터 파일의 기간/항목을 줄여서 다시 시도해주세요." },
+        { status: 502 }
+      );
+    }
 
     let html = result.response.text();
 
