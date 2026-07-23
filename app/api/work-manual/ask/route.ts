@@ -7,6 +7,31 @@ export const maxDuration = 60;
 // Gemini 2.5 Flash 무료 등급의 분당 입력 토큰 한도(250,000)를 넘지 않도록 안전하게 제한
 const MAX_MANUAL_TEXT_CHARS = 100000;
 
+function isOverloadedError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message.toLowerCase() : "";
+  return msg.includes("503") || msg.includes("service unavailable") || msg.includes("overloaded") || msg.includes("high demand");
+}
+
+type GenerativeModel = ReturnType<GoogleGenerativeAI["getGenerativeModel"]>;
+
+// Gemini가 일시적으로 과부하(503)일 때 대기 시간을 늘려가며 최대 3번 재시도한다.
+const RETRY_DELAYS_MS = [2000, 5000, 10000];
+
+async function generateWithRetry(
+  model: GenerativeModel,
+  request: Parameters<GenerativeModel["generateContent"]>[0],
+  requestOptions?: Parameters<GenerativeModel["generateContent"]>[1]
+) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await model.generateContent(request, requestOptions);
+    } catch (error) {
+      if (!isOverloadedError(error) || attempt >= RETRY_DELAYS_MS.length) throw error;
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+    }
+  }
+}
+
 interface ChatTurn {
   question: string;
   answer: string;
@@ -77,7 +102,7 @@ ${historyText ? `━━━ 이전 대화 ━━━\n${historyText}\n━━━━
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
-    const result2 = await model.generateContent({
+    const result2 = await generateWithRetry(model, {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.2, maxOutputTokens: 4096 },
     });
@@ -122,6 +147,12 @@ ${historyText ? `━━━ 이전 대화 ━━━\n${historyText}\n━━━━
       return NextResponse.json(
         { error: "AI 사용량이 일시적으로 한도를 초과했습니다. 잠시 후 다시 시도해주세요." },
         { status: 429 }
+      );
+    }
+    if (isOverloadedError(error)) {
+      return NextResponse.json(
+        { error: "AI 서버가 일시적으로 혼잡합니다. 잠시(1~2분) 후 다시 시도해주세요." },
+        { status: 503 }
       );
     }
     return NextResponse.json({ error: `답변 생성 중 오류가 발생했습니다: ${message}` }, { status: 500 });
