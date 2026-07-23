@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { upload } from "@vercel/blob/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -96,9 +97,15 @@ export default function PerformanceEstimateClient() {
     setIsLoading(true);
     setLoadError("");
     try {
-      const formData = new FormData();
-      formData.append("file", uploadedFile);
-      const response = await fetch("/api/performance-estimate/parse", { method: "POST", body: formData });
+      const blob = await upload(uploadedFile.name, uploadedFile, {
+        access: "public",
+        handleUploadUrl: "/api/performance-estimate/blob-upload",
+      });
+      const response = await fetch("/api/performance-estimate/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataFileUrl: blob.url }),
+      });
       const result = await response.json();
       if (!result.success) throw new Error(result.error || "파일 분석에 실패했습니다.");
 

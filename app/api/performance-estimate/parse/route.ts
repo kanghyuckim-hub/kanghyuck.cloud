@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { parseDataBuffer } from "@/lib/parseDataFile";
+import { fetchAndParseDataFile } from "@/lib/parseDataFile";
 
 export const maxDuration = 60;
 
@@ -17,9 +17,8 @@ export interface ProjectRecord {
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    if (!file) {
+    const { dataFileUrl } = (await request.json()) as { dataFileUrl?: string };
+    if (!dataFileUrl) {
       return NextResponse.json({ success: false, error: "파일이 필요합니다." }, { status: 400 });
     }
 
@@ -27,8 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "GEMINI_API_KEY 환경변수가 설정되지 않았습니다." }, { status: 500 });
     }
 
-    const buffer = await file.arrayBuffer();
-    let text = await parseDataBuffer(buffer);
+    let text = await fetchAndParseDataFile(dataFileUrl);
     if (!text.trim()) {
       return NextResponse.json({ success: false, error: "파일에서 텍스트를 추출하지 못했습니다." }, { status: 400 });
     }
@@ -66,6 +64,13 @@ ${text}
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
     });
+
+    if (result.response.candidates?.[0]?.finishReason === "MAX_TOKENS") {
+      return NextResponse.json(
+        { success: false, error: "프로젝트 수가 많아 분석 도중 응답이 잘렸습니다. 파일을 나눠서 업로드해주세요." },
+        { status: 502 }
+      );
+    }
 
     let raw = result.response.text().trim();
     raw = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
