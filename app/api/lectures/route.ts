@@ -8,7 +8,7 @@ import { DEFAULT_LECTURE_CHARACTER, isValidCharacterKey } from "@/lib/lectureCha
 
 export const maxDuration = 60;
 
-const MAX_TEXT_CHARS = 50000;
+const MAX_TEXT_CHARS = 100000;
 const GEMINI_TIMEOUT_MS = 50000;
 
 export interface LectureSlide {
@@ -90,14 +90,17 @@ export async function POST(request: NextRequest) {
 ${text}
 ━━━━━━━━━━━━━━━━━
 
-이 자료를 이해하기 쉬운 강의로 재구성하세요. 슬라이드는 5~12장 정도로, 각 슬라이드마다:
-- heading: 슬라이드 제목 (짧게)
-- bullets: 화면에 보여줄 핵심 요점 2~5개 (짧은 문장)
-- narration: 선생님 캐릭터가 실제로 말하듯이 읽어줄 내레이션 대본. bullets 내용을 자연스러운 구어체 한국어 문장으로 풀어서 설명하세요. 한 슬라이드당 2~5문장 정도.
+이 자료를 빠짐없이 이해하기 쉬운 강의로 재구성하세요. 자료에 있는 모든 주요 섹션/챕터/소제목/항목을 하나도 빠뜨리지 말고 각각 최소 1개 이상의 슬라이드로 다루세요. 슬라이드 수는 미리 정해두지 말고 자료 분량에 맞게 자연스럽게 늘리세요 (짧은 자료는 6~10장, 내용이 많은 자료는 15~30장 이상이 될 수도 있습니다). 요약만 하지 말고, 자료에 나온 구체적인 수치·조건·절차·예외사항·용어 정의까지 실제로 설명하세요.
+
+각 슬라이드마다:
+- heading: 슬라이드 제목 (해당 부분의 주제를 명확히 드러내는 짧은 제목)
+- bullets: 화면에 보여줄 핵심 요점 3~6개. 자료 원문의 구체적인 수치/조건/절차를 포함해서 최대한 자세하게 작성 (뭉뚱그린 요약 문장 금지)
+- narration: 선생님 캐릭터가 실제로 강의하듯이 읽어줄 내레이션 대본. bullets 내용을 자연스러운 구어체 한국어로 풀어 설명하되, 왜 그런지/어떤 경우에 해당하는지 등 맥락과 예시까지 곁들여 5~9문장 정도로 충분히 상세하게 작성하세요.
 
 규칙:
 1. 자료에 있는 내용에 근거해서만 작성하세요. 없는 내용을 지어내지 마세요.
-2. 다른 설명 없이 아래 JSON 형식으로만 응답하세요. 마크다운 코드 블록도 포함하지 마세요.
+2. 자료의 특정 섹션을 생략하거나 뭉뚱그리지 말고, 순서대로 빠짐없이 슬라이드에 반영하세요.
+3. 다른 설명 없이 아래 JSON 형식으로만 응답하세요. 마크다운 코드 블록도 포함하지 마세요.
 
 {"title": "강의 제목", "slides": [{"heading": "...", "bullets": ["...", "..."], "narration": "..."}]}`;
 
@@ -110,7 +113,7 @@ ${text}
       model.generateContent(
         {
           contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 8192 },
+          generationConfig: { temperature: 0.3, maxOutputTokens: 32768 },
         },
         { signal: controller.signal }
       )
