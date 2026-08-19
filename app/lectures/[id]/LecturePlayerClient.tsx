@@ -5,9 +5,17 @@ import { getCharacterEmoji } from '@/lib/lectureCharacters';
 
 interface LectureSlide {
   heading: string;
+  stage?: string;
   bullets: string[];
   narration: string;
 }
+
+const STAGE_STYLES: Record<string, string> = {
+  개념정리: 'bg-sky-500/20 text-sky-300',
+  핵심원리: 'bg-violet-500/20 text-violet-300',
+  문제풀이: 'bg-amber-500/20 text-amber-300',
+  응용예제: 'bg-emerald-500/20 text-emerald-300',
+};
 
 interface Lecture {
   id: string;
@@ -153,9 +161,20 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
             {emoji}
           </span>
           <div className="min-w-0 flex-1 text-white">
-            <p className="text-xs uppercase tracking-widest text-slate-400">
-              슬라이드 {slideIndex + 1} / {lecture.slides.length}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                슬라이드 {slideIndex + 1} / {lecture.slides.length}
+              </p>
+              {slide.stage && (
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    STAGE_STYLES[slide.stage] ?? 'bg-slate-500/20 text-slate-300'
+                  }`}
+                >
+                  {slide.stage}
+                </span>
+              )}
+            </div>
             <h2 className="mt-1 text-xl font-semibold">{slide.heading}</h2>
             <ul className="mt-3 space-y-1.5 text-sm text-slate-200">
               {slide.bullets.map((b, i) => (

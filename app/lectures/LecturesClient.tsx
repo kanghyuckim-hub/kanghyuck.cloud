@@ -106,7 +106,7 @@ export default function LecturesClient({ isAdmin }: { isAdmin: boolean }) {
       <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">강의 게시판</p>
         <h1 className="mt-3 mb-6 text-2xl font-semibold text-slate-900">
-          자료를 업로드하면 동물 캐릭터가 강의로 만들어줘요
+          자료를 업로드하면 동물 캐릭터 1타 강사가 중학생 눈높이로 강의를 만들어줘요
         </h1>
 
         {isAdmin && (
