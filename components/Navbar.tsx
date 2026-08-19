@@ -40,6 +40,12 @@ export default function Navbar() {
             업무매뉴얼
           </a>
           <a
+            href="/lectures"
+            className="text-sm text-gray-600 transition-colors hover:text-gray-900"
+          >
+            강의
+          </a>
+          <a
             href="/member-management"
             className="text-sm text-gray-600 transition-colors hover:text-gray-900"
           >
