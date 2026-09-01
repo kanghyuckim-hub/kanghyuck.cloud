@@ -19,13 +19,13 @@ export default function MailPage() {
   const [tab, setTab] = useState<'compose' | 'inbox'>('compose');
 
   return (
-    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-slate-50 px-4 py-12">
-      <div className="mb-6 flex w-full max-w-lg gap-2 rounded-full bg-slate-200/60 p-1">
+    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-background px-4 py-12">
+      <div className="mb-6 flex w-full max-w-lg gap-2 rounded-full bg-muted p-1">
         <button
           type="button"
           onClick={() => setTab('compose')}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition ${
-            tab === 'compose' ? 'bg-white text-slate-900 shadow' : 'text-slate-500 hover:text-slate-700'
+            tab === 'compose' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           메일쓰기
@@ -34,7 +34,7 @@ export default function MailPage() {
           type="button"
           onClick={() => setTab('inbox')}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition ${
-            tab === 'inbox' ? 'bg-white text-slate-900 shadow' : 'text-slate-500 hover:text-slate-700'
+            tab === 'inbox' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           메일함
@@ -81,15 +81,15 @@ function ComposeTab() {
   };
 
   return (
-    <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+    <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-10 shadow-xl">
+      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
         메일 발송
       </p>
-      <h1 className="mt-3 mb-8 text-2xl font-semibold text-slate-900">메일 보내기</h1>
+      <h1 className="mt-3 mb-8 text-2xl font-semibold text-foreground">메일 보내기</h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="to" className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label htmlFor="to" className="mb-1.5 block text-sm font-medium text-foreground">
               받는 사람
             </label>
             <input
@@ -99,12 +99,12 @@ function ComposeTab() {
               onChange={(e) => setTo(e.target.value)}
               required
               placeholder="example@email.com"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              className="w-full rounded-xl border border-border px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
           </div>
 
           <div>
-            <label htmlFor="subject" className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label htmlFor="subject" className="mb-1.5 block text-sm font-medium text-foreground">
               제목
             </label>
             <input
@@ -114,12 +114,12 @@ function ComposeTab() {
               onChange={(e) => setSubject(e.target.value)}
               required
               placeholder="메일 제목을 입력하세요"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              className="w-full rounded-xl border border-border px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
           </div>
 
           <div>
-            <label htmlFor="body" className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label htmlFor="body" className="mb-1.5 block text-sm font-medium text-foreground">
               내용
             </label>
             <textarea
@@ -129,7 +129,7 @@ function ComposeTab() {
               required
               rows={7}
               placeholder="메일 내용을 입력하세요..."
-              className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              className="w-full resize-none rounded-xl border border-border px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
           </div>
 
@@ -137,8 +137,8 @@ function ComposeTab() {
             <p
               className={`rounded-xl px-4 py-3 text-sm font-medium ${
                 status === 'success'
-                  ? 'bg-green-50 text-green-700'
-                  : 'bg-red-50 text-red-600'
+                  ? 'bg-green-500/15 text-green-400'
+                  : 'bg-red-500/15 text-red-400'
               }`}
             >
               {message}
@@ -148,7 +148,7 @@ function ComposeTab() {
           <button
             type="submit"
             disabled={status === 'sending'}
-            className="w-full rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {status === 'sending' ? '전송 중...' : '메일 전송'}
           </button>
@@ -186,22 +186,22 @@ function InboxTab() {
   }, []);
 
   return (
-    <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">받은 메일함</p>
-      <h1 className="mt-3 mb-8 text-2xl font-semibold text-slate-900">메일함</h1>
+    <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-10 shadow-xl">
+      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">받은 메일함</p>
+      <h1 className="mt-3 mb-8 text-2xl font-semibold text-foreground">메일함</h1>
 
-      {loading && <p className="text-sm text-slate-500">불러오는 중...</p>}
+      {loading && <p className="text-sm text-muted-foreground">불러오는 중...</p>}
 
       {!loading && error && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">{error}</p>
+        <p className="rounded-xl bg-red-500/15 px-4 py-3 text-sm font-medium text-red-400">{error}</p>
       )}
 
       {!loading && !error && messages.length === 0 && (
-        <p className="text-sm text-slate-500">받은 메일이 없습니다.</p>
+        <p className="text-sm text-muted-foreground">받은 메일이 없습니다.</p>
       )}
 
       {!loading && !error && messages.length > 0 && (
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-border">
           {messages.map((m) => {
             const isOpen = openId === m.id;
             return (
@@ -212,20 +212,20 @@ function InboxTab() {
                   className="flex w-full flex-col items-start text-left"
                 >
                   <div className="flex w-full items-baseline justify-between gap-3">
-                    <span className="truncate text-sm font-semibold text-slate-900">
+                    <span className="truncate text-sm font-semibold text-foreground">
                       {m.subject || '(제목 없음)'}
                     </span>
-                    <span className="shrink-0 text-xs text-slate-400">
+                    <span className="shrink-0 text-xs text-muted-foreground">
                       {m.receivedAt ? new Date(m.receivedAt).toLocaleString('ko-KR') : ''}
                     </span>
                   </div>
-                  <span className="mt-0.5 truncate text-xs text-slate-500">
+                  <span className="mt-0.5 truncate text-xs text-muted-foreground">
                     {m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress}
                   </span>
-                  {!isOpen && <span className="mt-1 truncate text-sm text-slate-600">{m.snippet}</span>}
+                  {!isOpen && <span className="mt-1 truncate text-sm text-muted-foreground">{m.snippet}</span>}
                 </button>
                 {isOpen && (
-                  <p className="mt-2 whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-sm text-slate-700">
+                  <p className="mt-2 whitespace-pre-wrap rounded-xl bg-muted p-4 text-sm text-foreground">
                     {m.bodyText || m.snippet || '내용을 표시할 수 없습니다.'}
                   </p>
                 )}

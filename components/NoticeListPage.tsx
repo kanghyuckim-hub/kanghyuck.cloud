@@ -63,9 +63,9 @@ const categories = ["전체", "공지", "업무", "기타"] as const;
 
 // 카테고리별 Badge 색상
 const categoryColors: Record<string, string> = {
-  공지: "bg-blue-100 text-blue-700 hover:bg-blue-100",
-  업무: "bg-green-100 text-green-700 hover:bg-green-100",
-  기타: "bg-gray-100 text-gray-700 hover:bg-gray-100",
+  공지: "bg-blue-500/15 text-blue-400 hover:bg-blue-500/15",
+  업무: "bg-green-500/15 text-green-400 hover:bg-green-500/15",
+  기타: "bg-muted text-muted-foreground hover:bg-muted",
 };
 
 // 날짜 포맷 함수 (YYYY.MM.DD)
@@ -244,11 +244,11 @@ export default function NoticeListPage() {
     });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-8">
         {/* 헤더 영역 */}
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">📢 팀 공지사항</h1>
+          <h1 className="text-2xl font-bold text-foreground">📢 팀 공지사항</h1>
           <Button onClick={() => setIsFormOpen(true)}>
             <PenSquare className="mr-2 h-4 w-4" />
             새 공지 작성
@@ -259,7 +259,7 @@ export default function NoticeListPage() {
         <div className="mb-6 space-y-4">
           {/* 검색 인풋 */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="제목 또는 작성자 검색..."
               value={searchQuery}
@@ -381,7 +381,7 @@ export default function NoticeListPage() {
                         className="flex items-center justify-between rounded-lg border bg-muted/50 px-3 py-2"
                       >
                         <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-blue-600" />
+                          <FileText className="h-4 w-4 text-blue-400" />
                           <span className="text-sm font-medium">{attachment.name}</span>
                           <span className="text-xs text-muted-foreground">
                             ({formatFileSize(attachment.size)})
@@ -419,7 +419,7 @@ export default function NoticeListPage() {
                 </Label>
               </div>
 
-              {submitError && <p className="text-sm text-red-600">{submitError}</p>}
+              {submitError && <p className="text-sm text-red-400">{submitError}</p>}
 
               {/* 버튼 영역 */}
               <div className="flex justify-end gap-3 pt-4">
@@ -452,7 +452,7 @@ export default function NoticeListPage() {
                     {selectedNotice.isPinned && (
                       <Badge
                         variant="secondary"
-                        className="bg-amber-200 text-amber-800"
+                        className="bg-amber-500/20 text-amber-400"
                       >
                         고정
                       </Badge>
@@ -504,7 +504,7 @@ export default function NoticeListPage() {
                               onClick={() => setPreviewAttachment(attachment)}
                             >
                               <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-blue-600" />
+                                <FileText className="h-4 w-4 text-blue-400" />
                                 <span className="text-sm font-medium truncate max-w-[200px]">
                                   {attachment.name}
                                 </span>
@@ -550,7 +550,7 @@ export default function NoticeListPage() {
                     <div className="w-2/3 flex flex-col border rounded-lg overflow-hidden bg-muted/30">
                       <div className="flex items-center justify-between px-4 py-2 border-b bg-background">
                         <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-blue-600" />
+                          <FileText className="h-4 w-4 text-blue-400" />
                           <span className="text-sm font-medium truncate">
                             {previewAttachment.name}
                           </span>
@@ -614,9 +614,9 @@ export default function NoticeListPage() {
         </Dialog>
 
         {/* 공지 카드 목록 */}
-        {isLoading && <p className="py-10 text-center text-sm text-gray-500">불러오는 중...</p>}
+        {isLoading && <p className="py-10 text-center text-sm text-muted-foreground">불러오는 중...</p>}
         {!isLoading && loadError && (
-          <p className="py-10 text-center text-sm text-red-600">{loadError}</p>
+          <p className="py-10 text-center text-sm text-red-400">{loadError}</p>
         )}
         {!isLoading && !loadError && filteredNotices.length > 0 ? (
           <div className="space-y-4">
@@ -625,8 +625,8 @@ export default function NoticeListPage() {
                 key={notice.id}
                 className={`transition-shadow duration-200 hover:shadow-lg ${
                   notice.isPinned
-                    ? "border-amber-200 bg-amber-50"
-                    : "border-gray-100 bg-white"
+                    ? "border-amber-500/30 bg-amber-500/10"
+                    : "border-border bg-card"
                 }`}
               >
                 <CardContent className="p-5">
@@ -635,7 +635,7 @@ export default function NoticeListPage() {
                     {notice.isPinned && (
                       <Badge
                         variant="secondary"
-                        className="bg-amber-200 text-amber-800 hover:bg-amber-200"
+                        className="bg-amber-500/20 text-amber-400 hover:bg-amber-500/20"
                       >
                         📌 고정
                       </Badge>
@@ -647,20 +647,20 @@ export default function NoticeListPage() {
 
                   {/* 제목 */}
                   <h2
-                    className="mb-2 cursor-pointer text-lg font-semibold text-gray-900 hover:text-blue-600"
+                    className="mb-2 cursor-pointer text-lg font-semibold text-foreground hover:text-primary"
                     onClick={() => handleOpenDetail(notice)}
                   >
                     {notice.title}
                   </h2>
 
                   {/* 본문 미리보기 */}
-                  <p className="mb-3 text-sm text-gray-600">
+                  <p className="mb-3 text-sm text-muted-foreground">
                     {truncateContent(notice.content)}
                   </p>
 
                   {/* 첨부파일 표시 */}
                   {notice.attachments && notice.attachments.length > 0 && (
-                    <div className="mb-3 flex items-center gap-1 text-sm text-blue-600">
+                    <div className="mb-3 flex items-center gap-1 text-sm text-blue-400">
                       <Paperclip className="h-4 w-4" />
                       <span>첨부파일 {notice.attachments.length}개</span>
                     </div>
@@ -668,7 +668,7 @@ export default function NoticeListPage() {
 
                   {/* 하단: 작성자, 날짜, 삭제 버튼 */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <User className="h-4 w-4" />
                         {notice.author}
@@ -681,7 +681,7 @@ export default function NoticeListPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-400 hover:bg-red-50 hover:text-red-600"
+                      className="text-red-400 hover:bg-red-500/15 hover:text-red-400"
                       onClick={() => handleDelete(notice.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -694,8 +694,8 @@ export default function NoticeListPage() {
         ) : null}
         {!isLoading && !loadError && filteredNotices.length === 0 && (
           /* 빈 상태 */
-          <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-            <Inbox className="mb-4 h-16 w-16 text-gray-300" />
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <Inbox className="mb-4 h-16 w-16 text-muted-foreground" />
             <p className="text-lg">등록된 공지사항이 없습니다</p>
           </div>
         )}

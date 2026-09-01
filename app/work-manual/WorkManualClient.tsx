@@ -192,14 +192,14 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-slate-50 px-4 py-12">
-      <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">업무매뉴얼</p>
-        <h1 className="mt-3 mb-6 text-2xl font-semibold text-slate-900">매뉴얼 질의응답</h1>
+    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-background px-4 py-12">
+      <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-10 shadow-xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">업무매뉴얼</p>
+        <h1 className="mt-3 mb-6 text-2xl font-semibold text-foreground">매뉴얼 질의응답</h1>
 
         {isAdmin && (
-          <div className="mb-6 rounded-2xl border border-dashed border-slate-300 p-5">
-            <p className="mb-3 text-sm font-medium text-slate-700">매뉴얼 업로드 (PDF)</p>
+          <div className="mb-6 rounded-2xl border border-dashed border-border p-5">
+            <p className="mb-3 text-sm font-medium text-foreground">매뉴얼 업로드 (PDF)</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -210,27 +210,27 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
                 const files = Array.from(e.target.files ?? []);
                 if (files.length > 0) handleFilesSelected(files);
               }}
-              className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-700"
+              className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-foreground hover:file:bg-primary/90"
             />
-            {uploading && <p className="mt-2 text-sm text-slate-500">{uploadProgress}</p>}
-            {uploadError && <p className="mt-2 whitespace-pre-wrap text-sm text-red-600">{uploadError}</p>}
+            {uploading && <p className="mt-2 text-sm text-muted-foreground">{uploadProgress}</p>}
+            {uploadError && <p className="mt-2 whitespace-pre-wrap text-sm text-red-400">{uploadError}</p>}
           </div>
         )}
 
         <div className="mb-8">
-          <p className="mb-2 text-sm font-medium text-slate-700">등록된 매뉴얼</p>
-          {manualsLoading && <p className="text-sm text-slate-500">불러오는 중...</p>}
-          {!manualsLoading && manualsError && <p className="text-sm text-red-600">{manualsError}</p>}
+          <p className="mb-2 text-sm font-medium text-foreground">등록된 매뉴얼</p>
+          {manualsLoading && <p className="text-sm text-muted-foreground">불러오는 중...</p>}
+          {!manualsLoading && manualsError && <p className="text-sm text-red-400">{manualsError}</p>}
           {!manualsLoading && !manualsError && manuals.length === 0 && (
-            <p className="text-sm text-slate-500">등록된 매뉴얼이 없습니다.</p>
+            <p className="text-sm text-muted-foreground">등록된 매뉴얼이 없습니다.</p>
           )}
           {!manualsLoading && !manualsError && manuals.length > 0 && (
             <ul className="space-y-1">
               {manuals.map((m) => (
-                <li key={m.id} className="flex items-center justify-between gap-2 text-sm text-slate-600">
+                <li key={m.id} className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
                   <span className="truncate">{m.fileName}</span>
                   <span className="flex shrink-0 items-center gap-2">
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-muted-foreground">
                       {new Date(m.createdAt).toLocaleDateString('ko-KR')}
                     </span>
                     <a
@@ -238,7 +238,7 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       download={m.fileName}
-                      className="text-xs font-medium text-slate-500 hover:text-slate-700"
+                      className="text-xs font-medium text-muted-foreground hover:text-foreground"
                     >
                       다운로드
                     </a>
@@ -248,7 +248,7 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
                           type="button"
                           onClick={() => handleUpdateManual(m.id)}
                           disabled={updatingId === m.id}
-                          className="text-xs font-medium text-blue-600 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="text-xs font-medium text-primary hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {updatingId === m.id ? '생성 중...' : '업데이트본 생성'}
                         </button>
@@ -256,7 +256,7 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
                           type="button"
                           onClick={() => handleDeleteManual(m.id)}
                           disabled={deletingId === m.id}
-                          className="text-xs font-medium text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="text-xs font-medium text-red-400 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {deletingId === m.id ? '삭제 중...' : '삭제'}
                         </button>
@@ -268,22 +268,22 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
             </ul>
           )}
           {isAdmin && updateError && (
-            <p className="mt-2 whitespace-pre-wrap text-sm text-red-600">{updateError}</p>
+            <p className="mt-2 whitespace-pre-wrap text-sm text-red-400">{updateError}</p>
           )}
         </div>
 
-        <div className="border-t border-slate-100 pt-6">
-          <p className="mb-3 text-sm font-medium text-slate-700">매뉴얼에게 질문하기</p>
+        <div className="border-t border-border pt-6">
+          <p className="mb-3 text-sm font-medium text-foreground">매뉴얼에게 질문하기</p>
 
           <div className="mb-4 max-h-96 space-y-3 overflow-y-auto">
             {messages.length === 0 && (
-              <p className="text-sm text-slate-400">업무매뉴얼 내용에 대해 궁금한 점을 물어보세요.</p>
+              <p className="text-sm text-muted-foreground">업무매뉴얼 내용에 대해 궁금한 점을 물어보세요.</p>
             )}
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-                    m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-800'
+                    m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{m.text}</p>
@@ -292,14 +292,14 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
                       <button
                         type="button"
                         onClick={() => setOpenSourceIndex(openSourceIndex === i ? null : i)}
-                        className="text-xs font-medium text-slate-500 underline hover:text-slate-700"
+                        className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
                       >
                         {openSourceIndex === i ? '관련 내용 닫기' : '관련 내용 미리보기'}
                       </button>
                       {openSourceIndex === i && (
-                        <blockquote className="mt-2 whitespace-pre-wrap rounded-xl border-l-4 border-slate-300 bg-white p-3 text-xs text-slate-600">
+                        <blockquote className="mt-2 whitespace-pre-wrap rounded-xl border-l-4 border-border bg-card p-3 text-xs text-muted-foreground">
                           {m.sourceFile && (
-                            <p className="mb-1 font-semibold text-slate-500">출처: {m.sourceFile}</p>
+                            <p className="mb-1 font-semibold text-muted-foreground">출처: {m.sourceFile}</p>
                           )}
                           {m.sourceExcerpt}
                         </blockquote>
@@ -309,10 +309,10 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
                 </div>
               </div>
             ))}
-            {asking && <p className="text-sm text-slate-400">답변 생성 중...</p>}
+            {asking && <p className="text-sm text-muted-foreground">답변 생성 중...</p>}
           </div>
 
-          {askError && <p className="mb-2 text-sm text-red-600">{askError}</p>}
+          {askError && <p className="mb-2 text-sm text-red-400">{askError}</p>}
 
           <form onSubmit={handleAsk} className="flex gap-2">
             <input
@@ -321,46 +321,46 @@ export default function WorkManualClient({ isAdmin }: { isAdmin: boolean }) {
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="예: 휴가 신청은 어떻게 하나요?"
               disabled={asking}
-              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              className="flex-1 rounded-xl border border-border px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
             <button
               type="submit"
               disabled={asking || !question.trim()}
-              className="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               전송
             </button>
           </form>
         </div>
 
-        <div className="mt-8 border-t border-slate-100 pt-6">
-          <p className="mb-1 text-sm font-medium text-slate-700">자주 묻는 질문 TOP 15</p>
-          <p className="mb-3 text-xs text-slate-400">실제 질문 기록을 바탕으로 매주 자동 업데이트됩니다.</p>
+        <div className="mt-8 border-t border-border pt-6">
+          <p className="mb-1 text-sm font-medium text-foreground">자주 묻는 질문 TOP 15</p>
+          <p className="mb-3 text-xs text-muted-foreground">실제 질문 기록을 바탕으로 매주 자동 업데이트됩니다.</p>
 
-          {faqLoading && <p className="text-sm text-slate-500">불러오는 중...</p>}
-          {!faqLoading && faqError && <p className="text-sm text-red-600">{faqError}</p>}
+          {faqLoading && <p className="text-sm text-muted-foreground">불러오는 중...</p>}
+          {!faqLoading && faqError && <p className="text-sm text-red-400">{faqError}</p>}
           {!faqLoading && !faqError && faq.length === 0 && (
-            <p className="text-sm text-slate-500">아직 집계된 자주묻는질문이 없습니다.</p>
+            <p className="text-sm text-muted-foreground">아직 집계된 자주묻는질문이 없습니다.</p>
           )}
           {!faqLoading && !faqError && faq.length > 0 && (
             <ul className="space-y-1">
               {faq.map((item) => {
                 const isOpen = openFaqRank === item.rank;
                 return (
-                  <li key={item.rank} className="rounded-xl border border-slate-100">
+                  <li key={item.rank} className="rounded-xl border border-border">
                     <button
                       type="button"
                       onClick={() => setOpenFaqRank(isOpen ? null : item.rank)}
-                      className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-slate-800 hover:bg-slate-50"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-foreground hover:bg-accent"
                     >
                       <span className="truncate">
-                        <span className="mr-2 text-slate-400">{item.rank}.</span>
+                        <span className="mr-2 text-muted-foreground">{item.rank}.</span>
                         {item.question}
                       </span>
-                      <span className="shrink-0 text-xs text-slate-400">{item.askCount}회</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{item.askCount}회</span>
                     </button>
                     {isOpen && (
-                      <p className="whitespace-pre-wrap border-t border-slate-100 px-3 py-2.5 text-sm text-slate-600">
+                      <p className="whitespace-pre-wrap border-t border-border px-3 py-2.5 text-sm text-muted-foreground">
                         {item.answer}
                       </p>
                     )}

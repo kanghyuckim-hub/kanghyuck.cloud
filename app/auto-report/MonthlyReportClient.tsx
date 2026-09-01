@@ -389,25 +389,25 @@ ${linkTag}
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <BarChart3 className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center shadow-lg shadow-primary/25">
+            <BarChart3 className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-900 tracking-tight">Financial Analysis</h1>
-            <p className="text-xs text-slate-500">Investment Research Report</p>
+            <h1 className="text-lg font-bold text-foreground tracking-tight">Financial Analysis</h1>
+            <p className="text-xs text-muted-foreground">Investment Research Report</p>
           </div>
         </div>
       </header>
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-56 shrink-0 border-r border-slate-200 bg-white min-h-[calc(100vh-65px)] sticky top-[65px] self-start">
+        <aside className="w-56 shrink-0 border-r border-border bg-card min-h-[calc(100vh-65px)] sticky top-[65px] self-start">
           <div className="px-3 py-5">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">경영분석</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">경영분석</p>
             <nav className="space-y-1">
               {SIDEBAR_MENUS.map((menu) => {
                 const Icon = menu.icon;
@@ -418,11 +418,11 @@ ${linkTag}
                     href={menu.href}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                     {menu.label}
                   </Link>
                 );
@@ -434,8 +434,8 @@ ${linkTag}
         <main className="flex-1 px-8 py-8 max-w-5xl mx-auto">
           {/* Page Title */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">월간실적보고</h2>
-            <p className="text-slate-500 mt-1">
+            <h2 className="text-3xl font-bold text-foreground tracking-tight">월간실적보고</h2>
+            <p className="text-muted-foreground mt-1">
               실적 데이터 파일만 업로드해도 AI가 보고서를 자동 생성합니다. 디자인 샘플을 함께 올리면 해당 스타일로 맞춤 제작됩니다.
             </p>
           </div>
@@ -443,66 +443,66 @@ ${linkTag}
           {/* Upload Section */}
           <div className="grid grid-cols-2 gap-5 mb-6">
             {/* Data File */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold text-slate-800">실적 데이터 파일</span>
-                <span className="ml-auto text-xs text-slate-400">CSV · Excel · PDF · TXT (최대 50MB)</span>
+            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+                <FileText className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">실적 데이터 파일</span>
+                <span className="ml-auto text-xs text-muted-foreground">CSV · Excel · PDF · TXT (최대 50MB)</span>
               </div>
               <div
                 {...getDataRoot()}
                 className={`p-8 flex flex-col items-center justify-center cursor-pointer transition-colors min-h-[200px] ${
                   isDataDrag
-                    ? "bg-blue-50"
+                    ? "bg-primary/10"
                     : dataFile
-                    ? "bg-emerald-50"
-                    : "hover:bg-slate-50"
+                    ? "bg-emerald-500/10"
+                    : "hover:bg-accent"
                 }`}
               >
                 <input {...getDataInput()} />
                 {dataFile ? (
                   <>
                     <CheckCircle className="w-12 h-12 text-emerald-500 mb-3" />
-                    <p className="text-sm font-semibold text-slate-800 text-center break-all px-2">{dataFile.name}</p>
-                    <p className="text-xs text-slate-400 mt-1">{(dataFile.size / 1024).toFixed(1)} KB</p>
+                    <p className="text-sm font-semibold text-foreground text-center break-all px-2">{dataFile.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{(dataFile.size / 1024).toFixed(1)} KB</p>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         clearDataFile();
                       }}
-                      className="mt-3 flex items-center gap-1 text-xs text-rose-500 hover:text-rose-700"
+                      className="mt-3 flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300"
                     >
                       <X className="w-3 h-3" />삭제
                     </button>
                   </>
                 ) : (
                   <>
-                    <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-3">
-                      <Upload className="w-6 h-6 text-blue-500" />
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                      <Upload className="w-6 h-6 text-primary" />
                     </div>
-                    <p className="text-sm font-medium text-slate-700">클릭하거나 파일을 드래그하세요</p>
-                    <p className="text-xs text-slate-400 mt-1">월별 매출, 영업이익 등 실적 데이터</p>
+                    <p className="text-sm font-medium text-foreground">클릭하거나 파일을 드래그하세요</p>
+                    <p className="text-xs text-muted-foreground mt-1">월별 매출, 영업이익 등 실적 데이터</p>
                   </>
                 )}
               </div>
             </div>
 
             {/* Design Sample */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-violet-600" />
-                <span className="text-sm font-semibold text-slate-800">보고서 디자인 샘플</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500">선택</span>
-                <span className="ml-auto text-xs text-slate-400">PNG · JPG · PDF</span>
+            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-violet-400" />
+                <span className="text-sm font-semibold text-foreground">보고서 디자인 샘플</span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground">선택</span>
+                <span className="ml-auto text-xs text-muted-foreground">PNG · JPG · PDF</span>
               </div>
               <div
                 {...getDesignRoot()}
                 className={`p-8 flex flex-col items-center justify-center cursor-pointer transition-colors min-h-[200px] ${
                   isDesignDrag
-                    ? "bg-violet-50"
+                    ? "bg-violet-500/10"
                     : designFile
-                    ? "bg-emerald-50"
-                    : "hover:bg-slate-50"
+                    ? "bg-emerald-500/10"
+                    : "hover:bg-accent"
                 }`}
               >
                 <input {...getDesignInput()} />
@@ -512,12 +512,12 @@ ${linkTag}
                       <img
                         src={designPreview}
                         alt="디자인 샘플 미리보기"
-                        className="max-h-36 rounded-lg object-contain border border-slate-200 shadow-sm mb-2"
+                        className="max-h-36 rounded-lg object-contain border border-border shadow-sm mb-2"
                       />
-                      <p className="text-xs text-slate-500 truncate max-w-[180px]">{designFile.name}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-[180px]">{designFile.name}</p>
                       <button
                         onClick={(e) => { e.stopPropagation(); setDesignFile(null); setDesignPreview(null); setReportHtml(null); }}
-                        className="mt-2 flex items-center gap-1 text-xs text-rose-500 hover:text-rose-700"
+                        className="mt-2 flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300"
                       >
                         <X className="w-3 h-3" />삭제
                       </button>
@@ -525,11 +525,11 @@ ${linkTag}
                   ) : (
                     <>
                       <CheckCircle className="w-12 h-12 text-emerald-500 mb-3" />
-                      <p className="text-sm font-semibold text-slate-800 text-center break-all px-2">{designFile.name}</p>
-                      <p className="text-xs text-slate-400 mt-1">{(designFile.size / 1024).toFixed(1)} KB</p>
+                      <p className="text-sm font-semibold text-foreground text-center break-all px-2">{designFile.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{(designFile.size / 1024).toFixed(1)} KB</p>
                       <button
                         onClick={(e) => { e.stopPropagation(); setDesignFile(null); setReportHtml(null); }}
-                        className="mt-3 flex items-center gap-1 text-xs text-rose-500 hover:text-rose-700"
+                        className="mt-3 flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300"
                       >
                         <X className="w-3 h-3" />삭제
                       </button>
@@ -537,11 +537,11 @@ ${linkTag}
                   )
                 ) : (
                   <>
-                    <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center mb-3">
-                      <ImageIcon className="w-6 h-6 text-violet-500" />
+                    <div className="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-3">
+                      <ImageIcon className="w-6 h-6 text-violet-400" />
                     </div>
-                    <p className="text-sm font-medium text-slate-700">클릭하거나 파일을 드래그하세요</p>
-                    <p className="text-xs text-slate-400 mt-1">참고할 보고서 디자인 이미지</p>
+                    <p className="text-sm font-medium text-foreground">클릭하거나 파일을 드래그하세요</p>
+                    <p className="text-xs text-muted-foreground mt-1">참고할 보고서 디자인 이미지</p>
                   </>
                 )}
               </div>
@@ -550,29 +550,29 @@ ${linkTag}
 
           {/* Data File Content Preview */}
           {dataFile && (
-            <div className="mb-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold text-slate-800">업로드한 데이터 미리보기</span>
+            <div className="mb-6 bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+                <FileText className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">업로드한 데이터 미리보기</span>
                 {dataPreviewTruncated && (
-                  <span className="ml-auto text-xs text-slate-400">일부만 표시됨</span>
+                  <span className="ml-auto text-xs text-muted-foreground">일부만 표시됨</span>
                 )}
               </div>
               <div className="p-5">
                 {isDataPreviewLoading && (
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     파일 내용을 불러오는 중...
                   </div>
                 )}
                 {dataPreviewError && (
-                  <div className="flex items-start gap-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
+                  <div className="flex items-start gap-3 p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl text-rose-400 text-xs">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{dataPreviewError}</span>
                   </div>
                 )}
                 {!isDataPreviewLoading && dataPreview && (
-                  <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-slate-50 border border-slate-100 p-4 text-xs text-slate-600 leading-relaxed">
+                  <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-muted border border-border p-4 text-xs text-muted-foreground leading-relaxed">
                     {dataPreview}
                   </pre>
                 )}
@@ -582,7 +582,7 @@ ${linkTag}
 
           {/* How it works hint */}
           {dataFile && !designFile && (
-            <div className="mb-6 p-4 bg-violet-50 border border-violet-100 rounded-xl text-xs text-violet-700 flex gap-3">
+            <div className="mb-6 p-4 bg-violet-500/15 border border-violet-500/30 rounded-xl text-xs text-violet-400 flex gap-3">
               <Sparkles className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 디자인 샘플 없이 생성합니다. AI가 네이비·블루 계열의 전문 보고서 레이아웃을 자체적으로 디자인합니다.
@@ -591,7 +591,7 @@ ${linkTag}
             </div>
           )}
           {!dataFile && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-700 flex gap-3">
+            <div className="mb-6 p-4 bg-primary/10 border border-primary/30 rounded-xl text-xs text-primary flex gap-3">
               <Sparkles className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 실적 데이터 파일(CSV, Excel, PDF)을 업로드하면 AI가 보고서를 자동 생성합니다.
@@ -605,7 +605,7 @@ ${linkTag}
             <button
               onClick={handleGenerate}
               disabled={!canGenerate}
-              className="flex items-center gap-3 px-10 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-3 px-10 py-3.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
                 <>
@@ -623,7 +623,7 @@ ${linkTag}
 
           {/* Error */}
           {error && (
-            <div className="flex items-start gap-3 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm mb-6">
+            <div className="flex items-start gap-3 p-4 bg-rose-500/15 border border-rose-500/30 rounded-xl text-rose-400 text-sm mb-6">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -633,23 +633,23 @@ ${linkTag}
           {reportHtml && (
             <div className="space-y-4">
               {/* Preview Card */}
-              <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all ${isFullscreen ? "fixed inset-0 z-50 rounded-none" : ""}`}>
+              <div className={`bg-card rounded-2xl border border-border shadow-sm overflow-hidden transition-all ${isFullscreen ? "fixed inset-0 z-50 rounded-none" : ""}`}>
                 {/* Toolbar */}
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 flex-wrap bg-white sticky top-0 z-10">
+                <div className="px-6 py-4 border-b border-border flex items-center gap-3 flex-wrap bg-card sticky top-0 z-10">
                   <div className="flex items-center gap-2 mr-auto">
                     <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    <span className="text-sm font-semibold text-slate-900">보고서 미리보기</span>
+                    <span className="text-sm font-semibold text-foreground">보고서 미리보기</span>
                   </div>
 
                   <button
                     onClick={() => setIsFullscreen((v) => !v)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
                   >
                     {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
                     {isFullscreen ? "축소" : "전체화면"}
                   </button>
 
-                  <div className="w-px h-5 bg-slate-200" />
+                  <div className="w-px h-5 bg-border" />
 
                   {/* PPT */}
                   <button
@@ -676,7 +676,7 @@ ${linkTag}
                   </button>
                   <button
                     onClick={downloadHtml}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-all shadow-sm"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-secondary hover:bg-accent text-foreground rounded-lg text-xs font-semibold transition-all shadow-sm"
                   >
                     <Globe className="w-3.5 h-3.5" />
                     HTML
@@ -692,27 +692,27 @@ ${linkTag}
               </div>
 
               {/* Design Command Panel */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-                  <Wand2 className="w-4 h-4 text-violet-600" />
-                  <span className="text-sm font-semibold text-slate-900">디자인 수정</span>
-                  <span className="text-xs text-slate-400 ml-1">— 원하는 방향을 명령어로 입력하세요</span>
+              <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-border flex items-center gap-2">
+                  <Wand2 className="w-4 h-4 text-violet-400" />
+                  <span className="text-sm font-semibold text-foreground">디자인 수정</span>
+                  <span className="text-xs text-muted-foreground ml-1">— 원하는 방향을 명령어로 입력하세요</span>
                   {htmlHistory.length > 0 && (
-                    <span className="ml-auto text-xs text-slate-400">{htmlHistory.length}단계 수정됨</span>
+                    <span className="ml-auto text-xs text-muted-foreground">{htmlHistory.length}단계 수정됨</span>
                   )}
                 </div>
 
                 <div className="p-5 space-y-4">
                   {/* Quick Commands */}
                   <div>
-                    <p className="text-xs font-medium text-slate-500 mb-2">빠른 명령</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-2">빠른 명령</p>
                     <div className="flex flex-wrap gap-2">
                       {QUICK_COMMANDS.map((cmd) => (
                         <button
                           key={cmd}
                           onClick={() => handleModify(cmd)}
                           disabled={isModifying}
-                          className="px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-violet-100 hover:text-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-3 py-1.5 rounded-full text-xs font-medium bg-muted text-foreground hover:bg-violet-500/15 hover:text-violet-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {cmd}
                         </button>
@@ -722,7 +722,7 @@ ${linkTag}
 
                   {/* Font Selector */}
                   <div>
-                    <p className="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5">
+                    <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
                       <Type className="w-3.5 h-3.5" />글꼴
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -736,8 +736,8 @@ ${linkTag}
                             title={font.value}
                             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl border text-xs font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                               isActive
-                                ? "border-violet-500 bg-violet-50 text-violet-700 shadow-sm"
-                                : "border-slate-200 bg-white text-slate-700 hover:border-violet-300 hover:bg-violet-50"
+                                ? "border-violet-500 bg-violet-500/15 text-violet-400 shadow-sm"
+                                : "border-border bg-card text-foreground hover:border-violet-400/50 hover:bg-violet-500/10"
                             }`}
                           >
                             <span className="text-base leading-tight" style={{ fontFamily: font.value }}>
@@ -752,7 +752,7 @@ ${linkTag}
 
                   {/* Free-form Input */}
                   <div>
-                    <p className="text-xs font-medium text-slate-500 mb-2">직접 입력</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-2">직접 입력</p>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -761,7 +761,7 @@ ${linkTag}
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleModify(); } }}
                         placeholder="예: 헤더 색상을 남색으로 변경, 표를 더 컴팩트하게, 전체 폰트를 고딕으로..."
                         disabled={isModifying}
-                        className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:opacity-50 transition-all"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-border text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:opacity-50 transition-all"
                       />
                       <button
                         onClick={() => handleModify()}
@@ -781,7 +781,7 @@ ${linkTag}
                   {/* Undo History */}
                   {htmlHistory.length > 0 && (
                     <div>
-                      <p className="text-xs font-medium text-slate-500 mb-2">되돌리기</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-2">되돌리기</p>
                       <div className="flex flex-wrap gap-2">
                         {Array.from({ length: htmlHistory.length }, (_, i) => {
                           const steps = i + 1;
@@ -793,8 +793,8 @@ ${linkTag}
                               disabled={isModifying}
                               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isOriginal
-                                  ? "bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200"
-                                  : "bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-700"
+                                  ? "bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 border border-rose-500/30"
+                                  : "bg-muted text-muted-foreground hover:bg-amber-500/15 hover:text-amber-400"
                               }`}
                             >
                               <RotateCcw className="w-3 h-3" />
@@ -808,7 +808,7 @@ ${linkTag}
 
                   {/* Modify Error */}
                   {modifyError && (
-                    <div className="flex items-start gap-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
+                    <div className="flex items-start gap-3 p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl text-rose-400 text-xs">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{modifyError}</span>
                     </div>

@@ -102,16 +102,16 @@ export default function LecturesClient({ isAdmin }: { isAdmin: boolean }) {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-slate-50 px-4 py-12">
-      <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">강의 게시판</p>
-        <h1 className="mt-3 mb-6 text-2xl font-semibold text-slate-900">
+    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-background px-4 py-12">
+      <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-10 shadow-xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">강의 게시판</p>
+        <h1 className="mt-3 mb-6 text-2xl font-semibold text-foreground">
           자료를 업로드하면 동물 캐릭터 1타 강사가 중학생 눈높이로 강의를 만들어줘요
         </h1>
 
         {isAdmin && (
-          <div className="mb-6 rounded-2xl border border-dashed border-slate-300 p-5">
-            <p className="mb-3 text-sm font-medium text-slate-700">강의 자료 업로드 (PDF)</p>
+          <div className="mb-6 rounded-2xl border border-dashed border-border p-5">
+            <p className="mb-3 text-sm font-medium text-foreground">강의 자료 업로드 (PDF)</p>
             <div className="mb-3 flex flex-wrap gap-2">
               {LECTURE_CHARACTERS.map((c) => (
                 <button
@@ -121,8 +121,8 @@ export default function LecturesClient({ isAdmin }: { isAdmin: boolean }) {
                   onClick={() => setCharacterKey(c.key)}
                   className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition ${
                     characterKey === c.key
-                      ? 'border-slate-900 bg-slate-900 text-white'
-                      : 'border-slate-200 text-slate-600 hover:border-slate-400'
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border text-muted-foreground hover:border-ring'
                   }`}
                 >
                   <span className="text-base">{c.emoji}</span>
@@ -140,32 +140,32 @@ export default function LecturesClient({ isAdmin }: { isAdmin: boolean }) {
                 const files = Array.from(e.target.files ?? []);
                 if (files.length > 0) handleFilesSelected(files);
               }}
-              className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-700"
+              className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-foreground hover:file:bg-primary/90"
             />
-            {uploading && <p className="mt-2 text-sm text-slate-500">{uploadProgress}</p>}
-            {uploadError && <p className="mt-2 whitespace-pre-wrap text-sm text-red-600">{uploadError}</p>}
+            {uploading && <p className="mt-2 text-sm text-muted-foreground">{uploadProgress}</p>}
+            {uploadError && <p className="mt-2 whitespace-pre-wrap text-sm text-red-400">{uploadError}</p>}
           </div>
         )}
 
         <div>
-          <p className="mb-2 text-sm font-medium text-slate-700">등록된 강의</p>
-          {loading && <p className="text-sm text-slate-500">불러오는 중...</p>}
-          {!loading && listError && <p className="text-sm text-red-600">{listError}</p>}
+          <p className="mb-2 text-sm font-medium text-foreground">등록된 강의</p>
+          {loading && <p className="text-sm text-muted-foreground">불러오는 중...</p>}
+          {!loading && listError && <p className="text-sm text-red-400">{listError}</p>}
           {!loading && !listError && lectures.length === 0 && (
-            <p className="text-sm text-slate-500">등록된 강의가 없습니다.</p>
+            <p className="text-sm text-muted-foreground">등록된 강의가 없습니다.</p>
           )}
           {!loading && !listError && lectures.length > 0 && (
             <ul className="space-y-2">
               {lectures.map((l) => (
                 <li
                   key={l.id}
-                  className="flex items-center justify-between gap-2 rounded-2xl border border-slate-100 px-4 py-3 hover:bg-slate-50"
+                  className="flex items-center justify-between gap-2 rounded-2xl border border-border px-4 py-3 hover:bg-accent"
                 >
                   <a href={`/lectures/${l.id}`} className="flex min-w-0 flex-1 items-center gap-3">
                     <span className="text-2xl">{getCharacterEmoji(l.characterKey)}</span>
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-slate-900">{l.title}</span>
-                      <span className="block text-xs text-slate-400">
+                      <span className="block truncate text-sm font-medium text-foreground">{l.title}</span>
+                      <span className="block text-xs text-muted-foreground">
                         슬라이드 {l.slideCount}장 · {new Date(l.createdAt).toLocaleDateString('ko-KR')}
                       </span>
                     </span>
@@ -175,7 +175,7 @@ export default function LecturesClient({ isAdmin }: { isAdmin: boolean }) {
                       type="button"
                       onClick={() => handleDelete(l.id)}
                       disabled={deletingId === l.id}
-                      className="shrink-0 text-xs font-medium text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="shrink-0 text-xs font-medium text-red-400 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {deletingId === l.id ? '삭제 중...' : '삭제'}
                     </button>

@@ -75,15 +75,15 @@ function BoardAccessDialog({ member, onClose }: { member: MemberItem; onClose: (
         </DialogHeader>
 
         {isMaster ? (
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             마스터 권한은 모든 게시판에 자동으로 접근할 수 있어 별도 설정이 필요하지 않습니다.
           </p>
         ) : isLoading ? (
-          <p className="text-sm text-gray-500">불러오는 중...</p>
+          <p className="text-sm text-muted-foreground">불러오는 중...</p>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {boardsData?.boards.map((board) => (
-              <label key={board.key} className="flex items-center gap-2 text-sm text-gray-700">
+              <label key={board.key} className="flex items-center gap-2 text-sm text-foreground">
                 <Checkbox
                   checked={boardKeys.includes(board.key)}
                   onCheckedChange={(checked) => toggle(board.key, checked === true)}
@@ -129,15 +129,15 @@ export default function MemberManagementPage() {
   const [accessTarget, setAccessTarget] = useState<MemberItem | null>(null);
 
   return (
-    <div className="min-h-[calc(100vh-48px)] bg-white">
+    <div className="min-h-[calc(100vh-48px)] bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">회원관리</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground">회원관리</h1>
+          <p className="mt-2 text-muted-foreground">
             구글 OAuth로 로그인한 회원의 기본정보 및 권한 목록입니다
           </p>
           {data && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               마지막 조회: {formatDateTime(data.fetchedAt)} · 총{" "}
               {data.members?.length ?? 0}명
             </p>
@@ -145,45 +145,45 @@ export default function MemberManagementPage() {
         </div>
 
         {data?.error && (
-          <div className="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+          <div className="mb-6 rounded-xl border border-yellow-500/30 bg-yellow-500/15 px-4 py-3 text-sm text-yellow-400">
             {data.error}
           </div>
         )}
 
         <AccessRequestPanel />
 
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-600">
+              <tr className="border-b border-border bg-accent">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-muted-foreground">
                   프로필
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-muted-foreground">
                   이름
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-muted-foreground">
                   이메일
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-center font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-center font-semibold text-muted-foreground">
                   이메일 인증
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-center font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-center font-semibold text-muted-foreground">
                   권한
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-muted-foreground">
                   로케일
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-muted-foreground">
                   마지막 로그인
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-muted-foreground">
                   가입일
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-semibold text-muted-foreground">
                   Google Sub
                 </th>
-                <th className="whitespace-nowrap px-4 py-3 text-center font-semibold text-gray-600">
+                <th className="whitespace-nowrap px-4 py-3 text-center font-semibold text-muted-foreground">
                   게시판 권한
                 </th>
               </tr>
@@ -191,15 +191,15 @@ export default function MemberManagementPage() {
             <tbody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b border-gray-100">
+                  <tr key={i} className="border-b border-border">
                     <td colSpan={10} className="px-4 py-4">
-                      <div className="h-4 w-full animate-pulse rounded bg-gray-100" />
+                      <div className="h-4 w-full animate-pulse rounded bg-accent" />
                     </td>
                   </tr>
                 ))
               ) : data?.members.length ? (
                 data.members.map((member) => (
-                  <tr key={member.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={member.id} className="border-b border-border hover:bg-accent">
                     <td className="px-4 py-3">
                       {member.picture ? (
                         <img
@@ -211,20 +211,20 @@ export default function MemberManagementPage() {
                           }}
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-gray-200" />
+                        <div className="h-8 w-8 rounded-full bg-muted" />
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-gray-900">
+                    <td className="whitespace-nowrap px-4 py-3 text-foreground">
                       {member.name || member.givenName || "-"}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-gray-700">{member.email}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-foreground">{member.email}</td>
                     <td className="px-4 py-3 text-center">
                       {member.emailVerified ? (
-                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                        <Badge variant="secondary" className="bg-emerald-500/15 text-emerald-400">
                           인증됨
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="border-gray-300 text-gray-500">
+                        <Badge variant="outline" className="border-border text-muted-foreground">
                           미인증
                         </Badge>
                       )}
@@ -234,25 +234,25 @@ export default function MemberManagementPage() {
                         variant="secondary"
                         className={
                           member.role === "master"
-                            ? "bg-purple-100 text-purple-800"
+                            ? "bg-purple-500/15 text-purple-400"
                             : member.role === "admin"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-gray-100 text-gray-600"
+                              ? "bg-blue-500/15 text-blue-400"
+                              : "bg-muted text-muted-foreground"
                         }
                       >
                         {member.role}
                       </Badge>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-gray-500">
+                    <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                       {member.locale || "-"}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-gray-500">
+                    <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                       {formatDateTime(member.lastLoginAt)}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-gray-500">
+                    <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                       {formatDateTime(member.createdAt)}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-gray-400">
+                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-muted-foreground">
                       {member.googleSub}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -264,7 +264,7 @@ export default function MemberManagementPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
+                  <td colSpan={10} className="px-4 py-12 text-center text-muted-foreground">
                     등록된 회원이 없습니다.
                   </td>
                 </tr>

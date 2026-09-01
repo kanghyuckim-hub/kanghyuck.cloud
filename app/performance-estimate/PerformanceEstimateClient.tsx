@@ -212,23 +212,23 @@ export default function PerformanceEstimateClient() {
   const totalDelta = totalAdj - totalOrig;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
+      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <SlidersHorizontal className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center shadow-lg shadow-primary/25">
+            <SlidersHorizontal className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-900 tracking-tight">실적추정</h1>
-            <p className="text-xs text-slate-500">진행율매출 변동 시뮬레이션</p>
+            <h1 className="text-lg font-bold text-foreground tracking-tight">실적추정</h1>
+            <p className="text-xs text-muted-foreground">진행율매출 변동 시뮬레이션</p>
           </div>
         </div>
       </header>
 
       <div className="flex">
-        <aside className="w-56 shrink-0 border-r border-slate-200 bg-white min-h-[calc(100vh-65px)] sticky top-[65px] self-start">
+        <aside className="w-56 shrink-0 border-r border-border bg-card min-h-[calc(100vh-65px)] sticky top-[65px] self-start">
           <div className="px-3 py-5">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">경영분석</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">경영분석</p>
             <nav className="space-y-1">
               {SIDEBAR_MENUS.map((menu) => {
                 const Icon = menu.icon;
@@ -238,10 +238,10 @@ export default function PerformanceEstimateClient() {
                     key={menu.href}
                     href={menu.href}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      isActive ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                     {menu.label}
                   </Link>
                 );
@@ -254,30 +254,30 @@ export default function PerformanceEstimateClient() {
           {phase === "upload" && (
             <div className="max-w-2xl mx-auto">
               <div className="text-center mb-10">
-                <h2 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">실적파일 업로드</h2>
-                <p className="text-slate-500 text-lg">
+                <h2 className="text-4xl font-bold text-foreground mb-3 tracking-tight">실적파일 업로드</h2>
+                <p className="text-muted-foreground text-lg">
                   건축설계업 진행율매출 계산에 필요한 프로젝트별 실적 파일(조직, 계약금액, 총예정원가, 실투입원가 등)을 업로드하세요
                 </p>
               </div>
-              <div {...getRootProps()} className={`relative border-2 border-dashed rounded-3xl p-16 text-center cursor-pointer transition-all overflow-hidden ${isDragActive ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-400 bg-white shadow-sm"}`}>
+              <div {...getRootProps()} className={`relative border-2 border-dashed rounded-3xl p-16 text-center cursor-pointer transition-all overflow-hidden ${isDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/60 bg-card shadow-sm"}`}>
                 <input {...getInputProps()} />
                 <div className="relative z-10">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center">
-                    {isLoading ? <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" /> : <Upload className="w-8 h-8 text-blue-600" />}
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 flex items-center justify-center">
+                    {isLoading ? <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" /> : <Upload className="w-8 h-8 text-primary" />}
                   </div>
-                  <p className="text-xl text-slate-900 mb-2 font-medium">{isLoading ? "AI가 프로젝트 데이터를 분석 중..." : isDragActive ? "파일을 놓으세요" : "클릭하거나 파일을 드래그하세요"}</p>
-                  <p className="text-sm text-slate-400">CSV · Excel · PDF · TXT (최대 50MB) — 컬럼 형식은 자유롭게, AI가 자동으로 인식합니다</p>
+                  <p className="text-xl text-foreground mb-2 font-medium">{isLoading ? "AI가 프로젝트 데이터를 분석 중..." : isDragActive ? "파일을 놓으세요" : "클릭하거나 파일을 드래그하세요"}</p>
+                  <p className="text-sm text-muted-foreground">CSV · Excel · PDF · TXT (최대 50MB) — 컬럼 형식은 자유롭게, AI가 자동으로 인식합니다</p>
                 </div>
               </div>
               {file && !isLoading && (
-                <div className="mt-6 flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm text-slate-700 flex-1 truncate">{file.name}</span>
+                <div className="mt-6 flex items-center gap-3 p-4 bg-card border border-border rounded-xl shadow-sm">
+                  <FileText className="w-5 h-5 text-primary" />
+                  <span className="text-sm text-foreground flex-1 truncate">{file.name}</span>
                   <CheckCircle className="w-5 h-5 text-emerald-500" />
                 </div>
               )}
               {loadError && (
-                <div className="mt-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">{loadError}</div>
+                <div className="mt-6 p-4 bg-rose-500/15 border border-rose-500/30 rounded-xl text-sm text-rose-400">{loadError}</div>
               )}
             </div>
           )}
@@ -286,28 +286,28 @@ export default function PerformanceEstimateClient() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold text-slate-900 tracking-tight">프로젝트 선택</h2>
-                  <p className="text-slate-500 mt-2">실적추정 시뮬레이션에 포함할 프로젝트를 선택하세요 ({selected.size}개 선택됨)</p>
+                  <h2 className="text-3xl font-bold text-foreground tracking-tight">프로젝트 선택</h2>
+                  <p className="text-muted-foreground mt-2">실적추정 시뮬레이션에 포함할 프로젝트를 선택하세요 ({selected.size}개 선택됨)</p>
                 </div>
-                <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium text-sm hover:bg-slate-200 transition-all">
+                <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 bg-muted text-foreground rounded-xl font-medium text-sm hover:bg-accent transition-all">
                   <RotateCcw className="w-4 h-4" />
                   다시 업로드
                 </button>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200">
+                      <tr className="bg-muted border-b border-border">
                         <th className="p-3 w-10"></th>
-                        <th className="text-left p-3 font-semibold text-slate-600">조직</th>
-                        <th className="text-left p-3 font-semibold text-slate-600">프로젝트명</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">계약금액</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">총예정원가</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">실투입원가</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">진행율</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">진행율매출</th>
+                        <th className="text-left p-3 font-semibold text-muted-foreground">조직</th>
+                        <th className="text-left p-3 font-semibold text-muted-foreground">프로젝트명</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">계약금액</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">총예정원가</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">실투입원가</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">진행율</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">진행율매출</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -315,17 +315,17 @@ export default function PerformanceEstimateClient() {
                         const progress = p.totalEstimatedCost > 0 ? Math.min(p.actualCostIncurred / p.totalEstimatedCost, 1) : 0;
                         const revenue = p.contractAmount * progress;
                         return (
-                          <tr key={idx} onClick={() => toggleSelected(idx)} className={`border-b border-slate-100 cursor-pointer transition-colors ${selected.has(idx) ? "bg-blue-50" : "hover:bg-slate-50"}`}>
+                          <tr key={idx} onClick={() => toggleSelected(idx)} className={`border-b border-border cursor-pointer transition-colors ${selected.has(idx) ? "bg-primary/10" : "hover:bg-accent"}`}>
                             <td className="p-3 text-center">
-                              <input type="checkbox" checked={selected.has(idx)} onChange={() => toggleSelected(idx)} onClick={(e) => e.stopPropagation()} className="w-4 h-4 accent-blue-600" />
+                              <input type="checkbox" checked={selected.has(idx)} onChange={() => toggleSelected(idx)} onClick={(e) => e.stopPropagation()} className="w-4 h-4 accent-primary" />
                             </td>
-                            <td className="p-3 text-slate-700">{p.organization}</td>
-                            <td className="p-3 font-medium text-slate-900">{p.projectName}</td>
+                            <td className="p-3 text-muted-foreground">{p.organization}</td>
+                            <td className="p-3 font-medium text-foreground">{p.projectName}</td>
                             <td className="p-3 text-right">{formatAmount(p.contractAmount)}</td>
                             <td className="p-3 text-right">{formatAmount(p.totalEstimatedCost)}</td>
                             <td className="p-3 text-right">{formatAmount(p.actualCostIncurred)}</td>
-                            <td className="p-3 text-right font-semibold text-blue-600">{formatPercent(progress)}</td>
-                            <td className="p-3 text-right font-semibold text-slate-900">{formatAmount(revenue)}</td>
+                            <td className="p-3 text-right font-semibold text-primary">{formatPercent(progress)}</td>
+                            <td className="p-3 text-right font-semibold text-foreground">{formatAmount(revenue)}</td>
                           </tr>
                         );
                       })}
@@ -338,7 +338,7 @@ export default function PerformanceEstimateClient() {
                 <button
                   onClick={goToAdjust}
                   disabled={selected.size === 0}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-8 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-xl font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   선택한 {selected.size}개 프로젝트로 시뮬레이션
                 </button>
@@ -350,14 +350,14 @@ export default function PerformanceEstimateClient() {
             <div className="space-y-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold text-slate-900 tracking-tight">실적추정 시뮬레이션</h2>
-                  <p className="text-slate-500 mt-2">각 프로젝트의 일정·실투입원가 변동값을 입력하면 아래 결과가 실시간으로 반영됩니다</p>
+                  <h2 className="text-3xl font-bold text-foreground tracking-tight">실적추정 시뮬레이션</h2>
+                  <p className="text-muted-foreground mt-2">각 프로젝트의 일정·실투입원가 변동값을 입력하면 아래 결과가 실시간으로 반영됩니다</p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setPhase("select")} className="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium text-sm hover:bg-slate-200 transition-all">
+                  <button onClick={() => setPhase("select")} className="px-5 py-2.5 bg-muted text-foreground rounded-xl font-medium text-sm hover:bg-accent transition-all">
                     프로젝트 다시 선택
                   </button>
-                  <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium text-sm hover:bg-slate-200 transition-all">
+                  <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 bg-muted text-foreground rounded-xl font-medium text-sm hover:bg-accent transition-all">
                     <RotateCcw className="w-4 h-4" />
                     새로 업로드
                   </button>
@@ -365,32 +365,32 @@ export default function PerformanceEstimateClient() {
               </div>
 
               {/* 변동값 입력 */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200">
-                        <th className="text-left p-3 font-semibold text-slate-600">프로젝트</th>
-                        <th className="text-right p-3 font-semibold text-slate-600 w-40">일정 변동 (일)</th>
-                        <th className="text-right p-3 font-semibold text-slate-600 w-44">실투입원가 변동률 (%)</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">진행율 (원본→조정)</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">진행율매출 (원본→조정)</th>
-                        <th className="text-right p-3 font-semibold text-slate-600">증감</th>
+                      <tr className="bg-muted border-b border-border">
+                        <th className="text-left p-3 font-semibold text-muted-foreground">프로젝트</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground w-40">일정 변동 (일)</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground w-44">실투입원가 변동률 (%)</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">진행율 (원본→조정)</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">진행율매출 (원본→조정)</th>
+                        <th className="text-right p-3 font-semibold text-muted-foreground">증감</th>
                       </tr>
                     </thead>
                     <tbody>
                       {selectedResults.map(({ idx, project, adj, result }) => (
-                        <tr key={idx} className="border-b border-slate-100">
+                        <tr key={idx} className="border-b border-border">
                           <td className="p-3">
-                            <div className="font-medium text-slate-900">{project.projectName}</div>
-                            <div className="text-xs text-slate-400">{project.organization}</div>
+                            <div className="font-medium text-foreground">{project.projectName}</div>
+                            <div className="text-xs text-muted-foreground">{project.organization}</div>
                           </td>
                           <td className="p-3 text-right">
                             <input
                               type="number"
                               value={adj.scheduleDelayDays}
                               onChange={(e) => updateAdjustment(idx, "scheduleDelayDays", Number(e.target.value))}
-                              className="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-right text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                              className="w-24 bg-background border border-border rounded-lg px-2 py-1.5 text-right text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                             />
                           </td>
                           <td className="p-3 text-right">
@@ -398,16 +398,16 @@ export default function PerformanceEstimateClient() {
                               type="number"
                               value={adj.costChangePercent}
                               onChange={(e) => updateAdjustment(idx, "costChangePercent", Number(e.target.value))}
-                              className="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-right text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                              className="w-24 bg-background border border-border rounded-lg px-2 py-1.5 text-right text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                             />
                           </td>
-                          <td className="p-3 text-right text-slate-600">
-                            {formatPercent(result.origProgress)} → <span className="font-semibold text-slate-900">{formatPercent(result.adjProgress)}</span>
+                          <td className="p-3 text-right text-muted-foreground">
+                            {formatPercent(result.origProgress)} → <span className="font-semibold text-foreground">{formatPercent(result.adjProgress)}</span>
                           </td>
-                          <td className="p-3 text-right text-slate-600">
-                            {formatAmount(result.origRevenue)} → <span className="font-semibold text-slate-900">{formatAmount(result.adjRevenue)}</span>
+                          <td className="p-3 text-right text-muted-foreground">
+                            {formatAmount(result.origRevenue)} → <span className="font-semibold text-foreground">{formatAmount(result.adjRevenue)}</span>
                           </td>
-                          <td className={`p-3 text-right font-semibold ${result.delta > 0 ? "text-emerald-600" : result.delta < 0 ? "text-rose-600" : "text-slate-400"}`}>
+                          <td className={`p-3 text-right font-semibold ${result.delta > 0 ? "text-emerald-400" : result.delta < 0 ? "text-rose-400" : "text-muted-foreground"}`}>
                             <div className="flex items-center justify-end gap-1">
                               {result.delta > 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : result.delta < 0 ? <ArrowDownRight className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
                               {formatAmount(Math.abs(result.delta))}
@@ -422,48 +422,48 @@ export default function PerformanceEstimateClient() {
 
               {/* 전체 요약 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-                  <div className="text-sm text-slate-500 mb-1">원본 진행율매출 합계</div>
-                  <div className="text-2xl font-bold text-slate-900">{formatAmount(totalOrig)}</div>
+                <div className="bg-card rounded-xl p-5 border border-border shadow-sm">
+                  <div className="text-sm text-muted-foreground mb-1">원본 진행율매출 합계</div>
+                  <div className="text-2xl font-bold text-foreground">{formatAmount(totalOrig)}</div>
                 </div>
-                <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-                  <div className="text-sm text-slate-500 mb-1">조정 진행율매출 합계</div>
-                  <div className="text-2xl font-bold text-blue-600">{formatAmount(totalAdj)}</div>
+                <div className="bg-card rounded-xl p-5 border border-border shadow-sm">
+                  <div className="text-sm text-muted-foreground mb-1">조정 진행율매출 합계</div>
+                  <div className="text-2xl font-bold text-primary">{formatAmount(totalAdj)}</div>
                 </div>
-                <div className={`rounded-xl p-5 border shadow-sm ${totalDelta >= 0 ? "bg-emerald-50 border-emerald-200" : "bg-rose-50 border-rose-200"}`}>
-                  <div className="text-sm text-slate-500 mb-1">전체 증감</div>
-                  <div className={`text-2xl font-bold ${totalDelta >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                <div className={`rounded-xl p-5 border shadow-sm ${totalDelta >= 0 ? "bg-emerald-500/15 border-emerald-500/30" : "bg-rose-500/15 border-rose-500/30"}`}>
+                  <div className="text-sm text-muted-foreground mb-1">전체 증감</div>
+                  <div className={`text-2xl font-bold ${totalDelta >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
                     {totalDelta >= 0 ? "+" : ""}{formatAmount(totalDelta)}
                   </div>
                 </div>
               </div>
 
               {/* 조직별 집계 */}
-              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-blue-600" />
+              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
+                <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-primary" />
                   조직별 실적추정 변동
                 </h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="bg-slate-50">
-                          <th className="text-left p-3 font-semibold text-slate-600 rounded-l-lg">조직</th>
-                          <th className="text-right p-3 font-semibold text-slate-600">프로젝트수</th>
-                          <th className="text-right p-3 font-semibold text-slate-600">원본</th>
-                          <th className="text-right p-3 font-semibold text-slate-600">조정</th>
-                          <th className="text-right p-3 font-semibold text-slate-600 rounded-r-lg">증감</th>
+                        <tr className="bg-muted">
+                          <th className="text-left p-3 font-semibold text-muted-foreground rounded-l-lg">조직</th>
+                          <th className="text-right p-3 font-semibold text-muted-foreground">프로젝트수</th>
+                          <th className="text-right p-3 font-semibold text-muted-foreground">원본</th>
+                          <th className="text-right p-3 font-semibold text-muted-foreground">조정</th>
+                          <th className="text-right p-3 font-semibold text-muted-foreground rounded-r-lg">증감</th>
                         </tr>
                       </thead>
                       <tbody>
                         {orgSummary.map((o) => (
-                          <tr key={o.organization} className="border-b border-slate-100">
-                            <td className="p-3 font-medium text-slate-900">{o.organization}</td>
-                            <td className="p-3 text-right text-slate-500">{o.count}</td>
+                          <tr key={o.organization} className="border-b border-border">
+                            <td className="p-3 font-medium text-foreground">{o.organization}</td>
+                            <td className="p-3 text-right text-muted-foreground">{o.count}</td>
                             <td className="p-3 text-right">{formatAmount(o.orig)}</td>
-                            <td className="p-3 text-right font-semibold text-blue-600">{formatAmount(o.adj)}</td>
-                            <td className={`p-3 text-right font-semibold ${o.delta > 0 ? "text-emerald-600" : o.delta < 0 ? "text-rose-600" : "text-slate-400"}`}>
+                            <td className="p-3 text-right font-semibold text-primary">{formatAmount(o.adj)}</td>
+                            <td className={`p-3 text-right font-semibold ${o.delta > 0 ? "text-emerald-400" : o.delta < 0 ? "text-rose-400" : "text-muted-foreground"}`}>
                               {o.delta > 0 ? "+" : ""}{formatAmount(o.delta)}
                             </td>
                           </tr>
@@ -485,10 +485,10 @@ export default function PerformanceEstimateClient() {
                 </div>
               </div>
 
-              <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+              <div className="p-4 bg-amber-500/15 rounded-xl border border-amber-500/30">
                 <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-amber-800">
+                  <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-amber-400">
                     <p className="font-semibold mb-1">계산 방식</p>
                     <p>진행율 = 실투입원가 ÷ 총예정원가 (원가 기준). 일정이 지연되면 총예정원가 중 시간에 비례하는 비중({(OVERHEAD_TIME_COST_RATIO * 100).toFixed(0)}%로 가정)만큼 총예정원가가 늘어난다고 가정해 진행율에 간접 반영합니다. 진행율매출 = 계약금액 × 진행율.</p>
                   </div>

@@ -39,16 +39,16 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center justify-center bg-slate-50 px-4 py-12">
-      <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center justify-center bg-background px-4 py-12">
+      <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-10 shadow-xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
           Contact
         </p>
-        <h1 className="mt-3 mb-8 text-2xl font-semibold text-slate-900">문의하기</h1>
+        <h1 className="mt-3 mb-8 text-2xl font-semibold text-foreground">문의하기</h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-foreground">
               이름
             </label>
             <input
@@ -58,12 +58,12 @@ export default function ContactForm() {
               onChange={(e) => setName(e.target.value)}
               required
               placeholder="홍길동"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              className="w-full rounded-xl border border-border px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-foreground">
               이메일
             </label>
             <input
@@ -73,12 +73,12 @@ export default function ContactForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="example@email.com"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              className="w-full rounded-xl border border-border px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
           </div>
 
           <div>
-            <label htmlFor="message" className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label htmlFor="message" className="mb-1.5 block text-sm font-medium text-foreground">
               메시지
             </label>
             <textarea
@@ -88,7 +88,7 @@ export default function ContactForm() {
               required
               rows={7}
               placeholder="문의 내용을 입력하세요..."
-              className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              className="w-full resize-none rounded-xl border border-border px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
           </div>
 
@@ -96,8 +96,8 @@ export default function ContactForm() {
             <p
               className={`rounded-xl px-4 py-3 text-sm font-medium ${
                 status === 'success'
-                  ? 'bg-green-50 text-green-700'
-                  : 'bg-red-50 text-red-600'
+                  ? 'bg-green-500/15 text-green-400'
+                  : 'bg-red-500/15 text-red-400'
               }`}
             >
               {feedback}
@@ -107,7 +107,7 @@ export default function ContactForm() {
           <button
             type="submit"
             disabled={status === 'sending'}
-            className="w-full rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {status === 'sending' ? '전송 중...' : '문의 보내기'}
           </button>

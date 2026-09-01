@@ -116,7 +116,7 @@ export default function NaverNewsList() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-5xl px-4 py-8">
         {/* 헤더 */}
         <div className="mb-6 flex items-center justify-between">
@@ -133,10 +133,10 @@ export default function NaverNewsList() {
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-foreground">
                 {isRealEstate ? "부동산 전문 뉴스" : "네이버 뉴스"}
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {isRealEstate ? "실시간 부동산 관련 뉴스" : "실시간 뉴스 헤드라인"}
               </p>
             </div>
@@ -155,7 +155,7 @@ export default function NaverNewsList() {
         </div>
 
         {/* 메인 탭 */}
-        <div className="mb-6 flex gap-2 border-b border-gray-200">
+        <div className="mb-6 flex gap-2 border-b border-border">
           {mainTabs.map((tab) => {
             const Icon = tab.icon;
             const active = mainTab === tab.id;
@@ -165,8 +165,8 @@ export default function NaverNewsList() {
                 onClick={() => handleMainTabClick(tab.id)}
                 className={`flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                   active
-                    ? "border-green-500 text-green-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                    ? "border-green-500 text-green-400"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -181,7 +181,7 @@ export default function NaverNewsList() {
         <>
         <form onSubmit={handleSearch} className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
               placeholder="키워드로 뉴스 검색..."
@@ -193,7 +193,7 @@ export default function NaverNewsList() {
               <button
                 type="button"
                 onClick={() => setSearchKeyword("")}
-                className="absolute right-16 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-16 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -212,7 +212,7 @@ export default function NaverNewsList() {
         {/* 활성 검색어 표시 */}
         {activeKeyword && (
           <div className="mb-4 flex items-center gap-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
+            <Badge variant="secondary" className="bg-green-500/15 text-green-400">
               <Search className="mr-1 h-3 w-3" />
               {activeKeyword}
             </Badge>
@@ -220,7 +220,7 @@ export default function NaverNewsList() {
               variant="ghost"
               size="sm"
               onClick={handleClearSearch}
-              className="h-6 px-2 text-xs text-gray-500"
+              className="h-6 px-2 text-xs text-muted-foreground"
             >
               검색 초기화
             </Button>
@@ -250,9 +250,9 @@ export default function NaverNewsList() {
 
         {/* 에러 상태 */}
         {error && (
-          <Card className="mb-6 border-red-200 bg-red-50">
+          <Card className="mb-6 border-red-500/30 bg-red-500/15">
             <CardContent className="py-4">
-              <p className="text-red-700">
+              <p className="text-red-400">
                 뉴스를 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.
               </p>
             </CardContent>
@@ -283,11 +283,11 @@ export default function NaverNewsList() {
         {!isLoading && data?.news && (
           <>
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 총 <span className="font-semibold">{data.count}</span>개의 뉴스
               </p>
               {data.fetchedAt && (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-muted-foreground">
                   업데이트:{" "}
                   {new Date(data.fetchedAt).toLocaleTimeString("ko-KR")}
                 </p>
@@ -297,8 +297,8 @@ export default function NaverNewsList() {
             {data.news.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Newspaper className="mb-4 h-12 w-12 text-gray-300" />
-                  <p className="text-gray-500">뉴스를 찾을 수 없습니다.</p>
+                  <Newspaper className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <p className="text-muted-foreground">뉴스를 찾을 수 없습니다.</p>
                   <Button
                     variant="outline"
                     size="sm"
@@ -325,24 +325,24 @@ export default function NaverNewsList() {
                       <CardContent className="p-4">
                         <div className="flex items-start gap-4">
                           {/* 번호 뱃지 */}
-                          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-600">
+                          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-sm font-medium text-muted-foreground">
                             {index + 1}
                           </div>
 
                           {/* 내용 */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="mb-1 line-clamp-2 text-base font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
+                            <h3 className="mb-1 line-clamp-2 text-base font-semibold text-foreground group-hover:text-green-400 transition-colors">
                               {item.title}
                             </h3>
                             {item.description && (
-                              <p className="mb-2 line-clamp-1 text-sm text-gray-500">
+                              <p className="mb-2 line-clamp-1 text-sm text-muted-foreground">
                                 {item.description}
                               </p>
                             )}
                             <div className="flex items-center gap-2">
                               <Badge
                                 variant="secondary"
-                                className="bg-gray-100 text-gray-600 text-xs"
+                                className="bg-accent text-muted-foreground text-xs"
                               >
                                 {item.source}
                               </Badge>
@@ -363,8 +363,8 @@ export default function NaverNewsList() {
                               />
                             </div>
                           ) : (
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 group-hover:bg-green-50 transition-colors">
-                              <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-green-500 transition-colors" />
+                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent group-hover:bg-green-500/15 transition-colors">
+                              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-green-400 transition-colors" />
                             </div>
                           )}
                         </div>
@@ -379,7 +379,7 @@ export default function NaverNewsList() {
 
         {/* 푸터 */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             {isRealEstate
               ? "부동산 관련 뉴스는 네이버 뉴스 검색 결과를 기반으로 제공됩니다."
               : "본 뉴스는 네이버 뉴스에서 제공됩니다."}
@@ -394,7 +394,7 @@ export default function NaverNewsList() {
             }
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-green-600 hover:underline mt-1"
+            className="inline-flex items-center gap-1 text-xs text-green-400 hover:underline mt-1"
           >
             네이버 뉴스 바로가기
             <ExternalLink className="h-3 w-3" />

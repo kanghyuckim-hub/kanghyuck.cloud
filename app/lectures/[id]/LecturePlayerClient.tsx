@@ -120,16 +120,16 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
 
   if (loading) {
     return (
-      <div className="flex min-h-[calc(100vh-48px)] items-center justify-center bg-slate-50">
-        <p className="text-sm text-slate-500">강의를 불러오는 중...</p>
+      <div className="flex min-h-[calc(100vh-48px)] items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">강의를 불러오는 중...</p>
       </div>
     );
   }
 
   if (loadError || !lecture) {
     return (
-      <div className="flex min-h-[calc(100vh-48px)] items-center justify-center bg-slate-50 px-4">
-        <p className="text-sm text-red-600">{loadError || '강의를 찾을 수 없습니다.'}</p>
+      <div className="flex min-h-[calc(100vh-48px)] items-center justify-center bg-background px-4">
+        <p className="text-sm text-red-400">{loadError || '강의를 찾을 수 없습니다.'}</p>
       </div>
     );
   }
@@ -138,21 +138,21 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
   const emoji = getCharacterEmoji(lecture.characterKey);
 
   return (
-    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-slate-50 px-4 py-12">
-      <div className="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-        <a href="/lectures" className="text-xs font-medium text-slate-400 hover:text-slate-600">
+    <div className="flex min-h-[calc(100vh-48px)] flex-col items-center bg-background px-4 py-12">
+      <div className="w-full max-w-3xl rounded-3xl border border-border bg-card p-10 shadow-xl">
+        <a href="/lectures" className="text-xs font-medium text-muted-foreground hover:text-foreground">
           ← 강의 목록으로
         </a>
-        <p className="mt-3 text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">강의 재생</p>
-        <h1 className="mt-2 mb-6 text-2xl font-semibold text-slate-900">{lecture.title}</h1>
+        <p className="mt-3 text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">강의 재생</p>
+        <h1 className="mt-2 mb-6 text-2xl font-semibold text-foreground">{lecture.title}</h1>
 
         {!ttsSupported && (
-          <p className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm text-amber-700">
+          <p className="mb-4 rounded-xl bg-amber-500/15 px-4 py-2 text-sm text-amber-400">
             이 브라우저는 음성 재생(TTS)을 지원하지 않아 자막만 표시됩니다.
           </p>
         )}
 
-        <div className="mb-6 flex items-center gap-6 rounded-2xl bg-slate-900 p-8">
+        <div className="mb-6 flex items-center gap-6 rounded-2xl bg-background p-8">
           <span
             className={`shrink-0 text-7xl transition-transform duration-200 ${
               isSpeaking ? 'animate-bounce' : ''
@@ -160,15 +160,15 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
           >
             {emoji}
           </span>
-          <div className="min-w-0 flex-1 text-white">
+          <div className="min-w-0 flex-1 text-foreground">
             <div className="flex items-center gap-2">
-              <p className="text-xs uppercase tracking-widest text-slate-400">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                 슬라이드 {slideIndex + 1} / {lecture.slides.length}
               </p>
               {slide.stage && (
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    STAGE_STYLES[slide.stage] ?? 'bg-slate-500/20 text-slate-300'
+                    STAGE_STYLES[slide.stage] ?? 'bg-muted text-muted-foreground'
                   }`}
                 >
                   {slide.stage}
@@ -176,10 +176,10 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
               )}
             </div>
             <h2 className="mt-1 text-xl font-semibold">{slide.heading}</h2>
-            <ul className="mt-3 space-y-1.5 text-sm text-slate-200">
+            <ul className="mt-3 space-y-1.5 text-sm text-foreground/80">
               {slide.bullets.map((b, i) => (
                 <li key={i} className="flex gap-2">
-                  <span className="text-slate-500">•</span>
+                  <span className="text-muted-foreground">•</span>
                   <span>{b}</span>
                 </li>
               ))}
@@ -187,7 +187,7 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
           </div>
         </div>
 
-        <p className="mb-6 whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+        <p className="mb-6 whitespace-pre-wrap rounded-xl bg-muted p-4 text-sm text-muted-foreground">
           {slide.narration}
         </p>
 
@@ -196,14 +196,14 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
             type="button"
             onClick={() => goToSlide(slideIndex - 1)}
             disabled={slideIndex === 0}
-            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:border-ring disabled:cursor-not-allowed disabled:opacity-40"
           >
             이전
           </button>
           <button
             type="button"
             onClick={handlePlayPause}
-            className="rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
+            className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             {isPlaying ? '일시정지' : '재생'}
           </button>
@@ -211,7 +211,7 @@ export default function LecturePlayerClient({ lectureId }: { lectureId: string }
             type="button"
             onClick={() => goToSlide(slideIndex + 1)}
             disabled={slideIndex === lecture.slides.length - 1}
-            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:border-ring disabled:cursor-not-allowed disabled:opacity-40"
           >
             다음
           </button>

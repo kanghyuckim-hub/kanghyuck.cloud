@@ -35,9 +35,9 @@ const STATUS_LABEL: Record<MyRequest["status"], string> = {
 };
 
 const STATUS_STYLE: Record<MyRequest["status"], string> = {
-  pending: "bg-amber-100 text-amber-800",
-  approved: "bg-emerald-100 text-emerald-700",
-  rejected: "bg-red-100 text-red-700",
+  pending: "bg-amber-500/15 text-amber-400",
+  approved: "bg-emerald-500/15 text-emerald-400",
+  rejected: "bg-red-500/15 text-red-400",
 };
 
 export default function AccessRequestClient() {
@@ -79,19 +79,19 @@ export default function AccessRequestClient() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-48px)] bg-white">
+    <div className="min-h-[calc(100vh-48px)] bg-background">
       <div className="mx-auto max-w-3xl px-4 py-10">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">게시판 이용 신청</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground">게시판 이용 신청</h1>
+          <p className="mt-2 text-muted-foreground">
             이용하고 싶은 게시판을 선택해서 신청하면, 관리자가 검토 후 승인해드립니다.
           </p>
         </div>
 
         {myRequest && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
             <Badge className={STATUS_STYLE[myRequest.status]}>{STATUS_LABEL[myRequest.status]}</Badge>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {myRequest.status === "approved"
                 ? `승인된 게시판: ${
                     myRequest.approvedBoardKeys
@@ -127,7 +127,7 @@ export default function AccessRequestClient() {
         </div>
 
         <div className="mt-6">
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-foreground">
             요청 메시지 (선택)
           </label>
           <Textarea
@@ -142,7 +142,7 @@ export default function AccessRequestClient() {
           <Button onClick={handleSubmit} disabled={submitting || selected.length === 0}>
             {submitting ? "제출 중..." : "요청하기"}
           </Button>
-          {submitted && <p className="text-sm text-emerald-600">요청이 접수되었습니다.</p>}
+          {submitted && <p className="text-sm text-emerald-400">요청이 접수되었습니다.</p>}
         </div>
       </div>
     </div>

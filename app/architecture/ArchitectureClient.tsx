@@ -131,35 +131,35 @@ export default function ArchitecturePage() {
     : undefined;
 
   return (
-    <div className="min-h-[calc(100vh-48px)] bg-white">
+    <div className="min-h-[calc(100vh-48px)] bg-background">
       <div className="mx-auto max-w-4xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-foreground">
             {isLawTab ? "건축법 관련 개정안" : "건축설계 입찰공고 정보"}
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-muted-foreground">
             {isLawTab
               ? "열린국회정보(국회사무처) 공공데이터를 기반으로 제공되는 건축법 관련 발의 법률안입니다"
               : "나라장터(조달청) 공공데이터를 기반으로 제공되는 건축설계 관련 입찰공고입니다"}
           </p>
           {data && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               마지막 조회: {formatDateTime(data.fetchedAt)} · 10분마다 자동 갱신
             </p>
           )}
         </div>
 
         {/* 종합/업종별/개정안 탭 */}
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-200">
+        <div className="mb-6 flex flex-wrap gap-2 border-b border-border">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => handleTabClick(t.id)}
               className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 tab === t.id
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {t.label}
@@ -169,7 +169,7 @@ export default function ArchitecturePage() {
 
         {/* 키워드 검색 */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
             placeholder={
@@ -185,7 +185,7 @@ export default function ArchitecturePage() {
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
             >
               <X className="h-4 w-4" />
             </button>
@@ -195,7 +195,7 @@ export default function ArchitecturePage() {
         {/* 추정가격 범위 검색 */}
         {!isLawTab && (
           <div className="mb-6 flex flex-wrap items-center gap-2">
-            <span className="text-sm text-gray-600">추정가격</span>
+            <span className="text-sm text-muted-foreground">추정가격</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -204,7 +204,7 @@ export default function ArchitecturePage() {
               onChange={(e) => setMinPrice(e.target.value)}
               className="w-32"
             />
-            <span className="text-sm text-gray-400">~</span>
+            <span className="text-sm text-muted-foreground">~</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -220,7 +220,7 @@ export default function ArchitecturePage() {
                   setMinPrice("");
                   setMaxPrice("");
                 }}
-                className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600"
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground"
               >
                 <X className="h-3.5 w-3.5" />
                 초기화
@@ -231,7 +231,7 @@ export default function ArchitecturePage() {
 
         {/* Config error notice */}
         {data?.error && (
-          <div className="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+          <div className="mb-6 rounded-xl border border-yellow-500/30 bg-yellow-500/15 px-4 py-3 text-sm text-yellow-400">
             {data.error}
           </div>
         )}
@@ -240,7 +240,7 @@ export default function ArchitecturePage() {
         <div className="flex flex-col gap-4">
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <Card key={i} className="border-gray-200">
+              <Card key={i} className="border-border">
                 <CardHeader className="pb-2">
                   <Skeleton className="h-4 w-16" />
                   <Skeleton className="h-6 w-3/4" />
@@ -261,33 +261,33 @@ export default function ArchitecturePage() {
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <Card className="border-gray-200 transition-shadow hover:shadow-md cursor-pointer">
+                  <Card className="border-border transition-shadow hover:shadow-md cursor-pointer">
                     <CardHeader className="pb-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <Badge variant="secondary" className="bg-green-500/15 text-green-400">
                           {bill.committee}
                         </Badge>
-                        <Badge variant="outline" className="border-gray-300 text-gray-600">
+                        <Badge variant="outline" className="border-border text-muted-foreground">
                           {bill.procResult}
                         </Badge>
                       </div>
-                      <CardTitle className="flex items-start justify-between gap-2 text-lg text-gray-900">
+                      <CardTitle className="flex items-start justify-between gap-2 text-lg text-foreground">
                         <span>{bill.title}</span>
-                        <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-gray-400" />
+                        <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 gap-1 text-sm text-gray-600 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-1 text-sm text-muted-foreground sm:grid-cols-2">
                         <p>대표발의: {bill.proposer}</p>
                         <p>제안일: {formatDate(bill.proposeDt)}</p>
                       </div>
-                      <p className="mt-2 text-xs text-gray-400">의안번호: {bill.billNo}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">의안번호: {bill.billNo}</p>
                     </CardContent>
                   </Card>
                 </a>
               ))
             ) : (
-              <p className="py-12 text-center text-gray-500">
+              <p className="py-12 text-center text-muted-foreground">
                 {normalizedQuery
                   ? "검색 결과와 일치하는 개정안이 없습니다."
                   : "현재 조건에 맞는 개정안이 없습니다."}
@@ -302,41 +302,41 @@ export default function ArchitecturePage() {
                 rel="noopener noreferrer"
                 className="block"
               >
-                <Card className="border-gray-200 transition-shadow hover:shadow-md cursor-pointer">
+                <Card className="border-border transition-shadow hover:shadow-md cursor-pointer">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
                       {tab === "all" && (
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                        <Badge variant="secondary" className="bg-purple-500/15 text-purple-400">
                           {bid.categoryLabel}
                         </Badge>
                       )}
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      <Badge variant="secondary" className="bg-blue-500/15 text-blue-400">
                         {bid.ntceInsttNm}
                       </Badge>
                       {bid.dminsttNm !== bid.ntceInsttNm && (
-                        <Badge variant="outline" className="border-gray-300 text-gray-600">
+                        <Badge variant="outline" className="border-border text-muted-foreground">
                           수요기관: {bid.dminsttNm}
                         </Badge>
                       )}
                     </div>
-                    <CardTitle className="flex items-start justify-between gap-2 text-lg text-gray-900">
+                    <CardTitle className="flex items-start justify-between gap-2 text-lg text-foreground">
                       <span>{bid.title}</span>
-                      <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-gray-400" />
+                      <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 gap-1 text-sm text-gray-600 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-1 text-sm text-muted-foreground sm:grid-cols-3">
                       <p>입찰마감: {formatDateTime(bid.bidClseDt)}</p>
                       <p>개찰일시: {formatDateTime(bid.opengDt)}</p>
                       <p>추정가격: {formatPrice(bid.presmptPrce)}</p>
                     </div>
-                    <p className="mt-2 text-xs text-gray-400">공고번호: {bid.bidNtceNo}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">공고번호: {bid.bidNtceNo}</p>
                   </CardContent>
                 </Card>
               </a>
             ))
           ) : (
-            <p className="py-12 text-center text-gray-500">
+            <p className="py-12 text-center text-muted-foreground">
               {normalizedQuery
                 ? "검색 결과와 일치하는 입찰공고가 없습니다."
                 : "현재 조건에 맞는 입찰공고가 없습니다."}
@@ -347,17 +347,17 @@ export default function ArchitecturePage() {
         {/* 관련 시행령/시행규칙/조례 뉴스 (공식 목록 API가 없어 뉴스 검색으로 대체) */}
         {isLawTab && (
           <div className="mt-10">
-            <h2 className="mb-1 text-lg font-semibold text-gray-900">
+            <h2 className="mb-1 text-lg font-semibold text-foreground">
               관련 시행령·조례 소식
             </h2>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="mb-4 text-sm text-muted-foreground">
               &ldquo;{RELATED_NEWS_KEYWORD}&rdquo; 관련 뉴스 검색 결과입니다 (네이버 뉴스 기반, 공식 입법예고
               데이터가 아닙니다).
             </p>
             <div className="flex flex-col gap-3">
               {relatedNewsLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                  <Card key={i} className="border-gray-200">
+                  <Card key={i} className="border-border">
                     <CardContent className="p-4">
                       <Skeleton className="h-5 w-3/4" />
                       <Skeleton className="mt-2 h-4 w-1/3" />
@@ -367,21 +367,21 @@ export default function ArchitecturePage() {
               ) : relatedNews?.news.length ? (
                 relatedNews.news.slice(0, 10).map((item) => (
                   <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer">
-                    <Card className="border-gray-200 transition-shadow hover:shadow-md">
+                    <Card className="border-border transition-shadow hover:shadow-md">
                       <CardContent className="flex items-center justify-between gap-3 p-4">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-gray-900">
+                          <p className="truncate text-sm font-medium text-foreground">
                             {item.title}
                           </p>
-                          <p className="mt-1 text-xs text-gray-400">{item.source}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{item.source}</p>
                         </div>
-                        <ExternalLink className="h-4 w-4 shrink-0 text-gray-400" />
+                        <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
                       </CardContent>
                     </Card>
                   </a>
                 ))
               ) : (
-                <p className="py-6 text-center text-sm text-gray-400">
+                <p className="py-6 text-center text-sm text-muted-foreground">
                   관련 뉴스를 찾을 수 없습니다.
                 </p>
               )}
