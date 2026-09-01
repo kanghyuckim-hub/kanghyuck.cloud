@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className="bg-white">
+    <html lang="ko" className="bg-background">
       <body className="font-sans antialiased">
         <Navbar />
         <main className="pt-12">

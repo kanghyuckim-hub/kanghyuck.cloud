@@ -29,23 +29,23 @@ export default async function Home() {
 
   if (!user && googleConfigured) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-xl">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-10 text-center shadow-xl">
           <div className="mb-8">
             <StrategyJourneyArt />
-            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                로그인  필요
             </p>
-            <h1 className="mt-4 text-3xl font-semibold text-slate-900">
+            <h1 className="mt-4 text-3xl font-semibold text-foreground">
               Google 계정으로 시작하기
             </h1>
-            <p className="mt-4 text-sm leading-6 text-slate-600">
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
               하이미디어 AI 컨설팅 서비스를 이용하려면 먼저 Google 계정으로 로그인하세요.
             </p>
           </div>
           <a
             href="/api/auth/login"
-            className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
           >
             Google로 로그인
           </a>
@@ -55,16 +55,16 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-48px)] flex-col bg-white">
+    <div className="flex min-h-[calc(100vh-48px)] flex-col bg-background">
       {user && (
-        <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-4 py-4">
+        <div className="flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-4">
           <div>
-            <p className="text-sm text-slate-500">환영합니다,</p>
-            <p className="text-lg font-semibold text-slate-900">{user.name}님</p>
+            <p className="text-sm text-muted-foreground">환영합니다,</p>
+            <p className="text-lg font-semibold text-foreground">{user.name}님</p>
           </div>
           <a
             href="/api/auth/logout"
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
+            className="rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground transition hover:bg-accent"
           >
             로그아웃
           </a>
