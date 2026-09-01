@@ -1,9 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
-import { withGeminiFallback } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+const CLAUDE_MODEL = "claude-opus-5";
 
 function errorResponse(message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {
@@ -20,34 +21,30 @@ export async function POST(request: NextRequest) {
     return errorResponse("메시지가 필요합니다", 400);
   }
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     console.error(
-      "Gemini API 키가 설정되지 않았습니다. .env.local에 GEMINI_API_KEY 를 설정하세요."
+      "Anthropic API 키가 설정되지 않았습니다. .env.local에 ANTHROPIC_API_KEY 를 설정하세요."
     );
     return errorResponse("API 키가 설정되지 않았습니다", 500);
   }
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const client = new Anthropic();
+  const claudeStream = client.messages.stream({
+    model: CLAUDE_MODEL,
+    max_tokens: 4096,
+    tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
+    messages: [{ role: "user", content: message }],
+  });
 
-  let geminiStream: AsyncGenerator<{ text: () => string }>;
+  // 첫 이벤트를 미리 받아 인증/요청 오류는 스트림 시작 전에 JSON 에러로 응답한다.
+  const events = claudeStream[Symbol.asyncIterator]();
+  let firstEvent;
   try {
-    const result = await withGeminiFallback(genAI, (model) =>
-      model.generateContentStream({
-        contents: [{ role: "user", parts: [{ text: message }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
-        // 설치된 SDK(@google/generative-ai) 타입 정의가 구버전(googleSearchRetrieval)까지만 알고 있어
-        // gemini-3.5-flash가 쓰는 googleSearch 그라운딩 툴은 캐스팅해서 전달한다.
-        tools: [{ googleSearch: {} }] as unknown as never,
-      })
-    );
-    geminiStream = result.stream;
+    firstEvent = await events.next();
   } catch (error) {
-    console.error("Gemini API 오류:", error);
-    const msg = error instanceof Error ? error.message : "요청 처리 중 오류가 발생했습니다";
-    const status =
-      typeof error === "object" && error !== null && "status" in error && typeof (error as { status: unknown }).status === "number"
-        ? (error as { status: number }).status
-        : 500;
+    console.error("Claude API 오류:", error);
+    const msg = error instanceof Anthropic.APIError ? error.message : "요청 처리 중 오류가 발생했습니다";
+    const status = error instanceof Anthropic.APIError && error.status ? error.status : 500;
     return errorResponse(msg, status);
   }
 
@@ -55,12 +52,16 @@ export async function POST(request: NextRequest) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const chunk of geminiStream) {
-          const text = chunk.text();
-          if (text) controller.enqueue(encoder.encode(text));
+        let result = firstEvent;
+        while (!result.done) {
+          const event = result.value;
+          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            controller.enqueue(encoder.encode(event.delta.text));
+          }
+          result = await events.next();
         }
       } catch (error) {
-        console.error("Gemini 스트리밍 오류:", error);
+        console.error("Claude 스트리밍 오류:", error);
       } finally {
         controller.close();
       }
